@@ -92,6 +92,9 @@ body {
   -webkit-transition-property: background-color;
   -webkit-transition-duration: 2s;
 }
+#hud #coins {
+  float: right;
+}
 #hud .value {
   color: black;
   font-weight: bold;
