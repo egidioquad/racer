@@ -384,7 +384,7 @@ var SPRITES = {
 	PLAYER_LEFT: { x: 995, y: 480, w: 80, h: 41 },
 	PLAYER_STRAIGHT: { x: 1085, y: 480, w: 80, h: 41 },
 	PLAYER_RIGHT: { x: 995, y: 531, w: 80, h: 41 },
-	COIN: { x: 1380, y: 531, w: 100, h: 85 }
+	COIN: { x: 1380, y: 1085, w: 100, h: 85 }
 };
 
 SPRITES.SCALE = 0.3 * (1 / SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth

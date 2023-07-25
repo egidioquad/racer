@@ -9,11 +9,6 @@
 </head>
 
 <body>
-
-	<div id='instructions'>
-		<p>Use the <b>arrow keys</b> to drive the car.</p>
-	</div>
-
 	<div id="racer">
 		<div id="hud">
 			<span id="speed" class="hud"><span id="speed_value" class="value">0</span> mph</span>
@@ -53,8 +48,8 @@
 		var treeOffset = 0;                       // current tree scroll offset
 		var segments = [];                      // array of road segments
 		var cars = [];                      // array of cars on the road
-		var coins = [];
-		var score = 0;
+		var coins = [];											// array of coins on the road
+		var score = 0;												// current score
 		var canvas = Dom.get('canvas');       // our canvas...
 		var ctx = canvas.getContext('2d'); // ...and its drawing context
 		var background = null;                    // our background image (loaded below)
@@ -80,8 +75,8 @@
 		var decel = -maxSpeed / 5;             // 'natural' deceleration rate when neither accelerating, nor braking
 		var offRoadDecel = -maxSpeed / 2;             // off road deceleration is somewhere in between
 		var offRoadLimit = maxSpeed / 4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
-		var totalCars = 200;                     // total number of cars on the road
-		var totalCoins = 15;
+		var totalCars = 150;                     // total number of cars on the road
+		var totalCoins = 15;											// total number of coins on the road
 		var currentLapTime = 0;                       // current lap time
 		var lastLapTime = null;                    // last lap time
 
@@ -104,7 +99,7 @@
 
 		function update(dt) {
 
-			var n, i, car, carW, sprite, spriteW, coin, coinW;
+			var n, i, car, carW, sprite, spriteW, coin, coinW, coinIndex;
     	var playerSegment = findSegment(position + playerZ);
     	var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
     	var speedPercent = speed / maxSpeed;
@@ -163,6 +158,8 @@
     	  coinW = SPRITES.COIN.w * SPRITES.SCALE;
     	  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
     	      score += 1; // Increase score
+						coinIndex = playerSegment.sprites.indexOf(coin)
+    	      playerSegment.sprites.splice(coinIndex, 1); // Remove coin
     	      playerSegment.coins.splice(i, 1); // Remove coin
     	      break;
     	  }
@@ -179,6 +176,7 @@
 				if (currentLapTime && (startPosition < playerZ)) {
 					lastLapTime = currentLapTime;
 					currentLapTime = 0;
+					score = 0;
 					if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
 						Dom.storage.fast_lap_time = lastLapTime;
 						updateHud('fast_lap_time', formatTime(lastLapTime));
@@ -343,15 +341,6 @@
 			for (n = (drawDistance - 1); n > 0; n--) {
 				segment = segments[(baseSegment.index + n) % segments.length];
 
-				for (i = 0; i < segment.coins.length; i++) {
-    		  coin = segment.coins[i];
-    		  sprite = coin.sprite;
-    		  spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, coin.percent);
-    		  spriteX = Util.interpolate(segment.p1.screen.x, segment.p2.screen.x, coin.percent) + (spriteScale * coin.offset * roadWidth * width / 2);
-    		  spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, coin.percent);
-    		  Render.sprite(ctx, width, height, resolution, roadWidth, sprites, coin.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
-    		}
-				
 				for (i = 0; i < segment.cars.length; i++) {
 					car = segment.cars[i];
 					sprite = car.sprite;
@@ -368,6 +357,7 @@
 					spriteY = segment.p1.screen.y;
 					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
 				}
+				
 
 				if (segment == playerSegment) {
 					Render.player(ctx, width, height, resolution, roadWidth, sprites, speed / maxSpeed,
@@ -555,9 +545,7 @@
 					offset = side * (1.5 + Math.random());
 					addSprite(n + Util.randomInt(0, 50), sprite, offset);
 				}
-
 			}
-
 		}
 
 		function resetCars() {
@@ -576,18 +564,29 @@
 		}
 
 		function resetCoins() {
-    	coins = [];
-    	var n, coin, segment, offset, z, sprite;
-    	for (var n = 0; n < totalCoins; n++) {
-    	    offset = Math.random() * Util.randomChoice([-0.8, 0.8]);
-    	    z = Math.floor(Math.random() * segments.length) * segmentLength;
-    	    sprite = SPRITES.COIN ;  // Assuming you have a COINS sprite, adjust this according to your sprite set up
-    	    coin = { offset: offset, z: z, sprite: sprite };
-    	    segment = findSegment(coin.z);
-    	    segment.coins.push(coin);  // Assuming your segment objects have a coins array
-    	    coins.push(coin);
-    }
-}
+		  coins = [];
+		  var n, coin, segment, offset, z, sprite;
+		  var minDistance = 20;  // Set this to whatever minimum distance you want
+		  var lastZ = -minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
+			
+		  for (var n = 0; n < totalCoins; n++) {
+		    offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
+			
+		    do {
+		      z = Math.floor(Math.random() * segments.length) * segmentLength;
+		    } while (Math.abs(z - lastZ) < minDistance);  // Keep generating new z values until we get one that's far enough away
+			
+		    lastZ = z;  // Update the lastZ value
+			
+		    sprite = SPRITES.COIN;  // Assuming you have a COINS sprite, adjust this according to your sprite set up
+		    coin = { offset: offset, z: z, sprite: sprite };
+		    segment = findSegment(coin.z);
+		    segment.coins.push(coin);  // Assuming your segment objects have a coins array
+		    coins.push(coin);
+		    addSprite(segments.indexOf(segment), sprite, offset);
+		  }
+		}
+
 
 
 		//=========================================================================
@@ -632,7 +631,7 @@
 			playerZ = (cameraHeight * cameraDepth);
 			resolution = height / 480;
 
-			if ((segments.length == 0) || (options.segmentLength) || (options.rumbleLength))
+			if ((segments.length == 0) || (options.segmentLength) || (options.rumbleLength)) 
 				resetRoad(); // only rebuild road when necessary
 		}
 
