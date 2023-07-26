@@ -158,8 +158,6 @@
     	  coinW = SPRITES.COIN.w * SPRITES.SCALE;
     	  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
     	      score += 1; // Increase score
-						coinIndex = playerSegment.sprites.indexOf(coin)
-    	      playerSegment.sprites.splice(coinIndex, 1); // Remove coin
     	      playerSegment.coins.splice(i, 1); // Remove coin
     	      break;
     	  }
@@ -176,7 +174,8 @@
 				if (currentLapTime && (startPosition < playerZ)) {
 					lastLapTime = currentLapTime;
 					currentLapTime = 0;
-					score = 0;
+					deletePreviousCoins()
+					resetCoins();
 					if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
 						Dom.storage.fast_lap_time = lastLapTime;
 						updateHud('fast_lap_time', formatTime(lastLapTime));
@@ -283,6 +282,12 @@
 				return seconds + "." + tenths;
 		}
 
+		function deletePreviousCoins() {
+			var i, segment;
+			for (i = 0; i < segments.length; i++) 
+				segments[i].coins = [];
+		}
+
 		//=========================================================================
 		// RENDER THE GAME WORLD
 		//=========================================================================
@@ -358,6 +363,13 @@
 					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
 				}
 				
+				for (i = 0; i < segment.coins.length; i++) {
+					offset = segment.coins[i].offset;
+					spriteScale = segment.p1.screen.scale;
+					spriteX = segment.p1.screen.x + (spriteScale * offset * roadWidth * width / 2);
+					spriteY = segment.p1.screen.y;
+					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, SPRITES.COIN, spriteScale, spriteX, spriteY, offset, -1, segment.clip);
+				}
 
 				if (segment == playerSegment) {
 					Render.player(ctx, width, height, resolution, roadWidth, sprites, speed / maxSpeed,
@@ -565,29 +577,27 @@
 
 		function resetCoins() {
 		  coins = [];
+			score = 0;
 		  var n, coin, segment, offset, z, sprite;
-		  var minDistance = 20;  // Set this to whatever minimum distance you want
-		  var lastZ = -minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
+		  var minDistance = 10000;  // Set this to whatever minimum distance you want
+		  var lastZ = minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
 			
 		  for (var n = 0; n < totalCoins; n++) {
 		    offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
 			
 		    do {
 		      z = Math.floor(Math.random() * segments.length) * segmentLength;
-		    } while (Math.abs(z - lastZ) < minDistance);  // Keep generating new z values until we get one that's far enough away
+		    } while (Math.abs(z - lastZ) < minDistance && findSegment(z) < 100);  // Keep generating new z values until we get one that's far enough away
 			
 		    lastZ = z;  // Update the lastZ value
 			
-		    sprite = SPRITES.COIN;  // Assuming you have a COINS sprite, adjust this according to your sprite set up
-		    coin = { offset: offset, z: z, sprite: sprite };
+		    sprite = SPRITES.COIN;
+		    coin = { offset: offset, z: z };
 		    segment = findSegment(coin.z);
-		    segment.coins.push(coin);  // Assuming your segment objects have a coins array
+		    segment.coins.push(coin);
 		    coins.push(coin);
-		    addSprite(segments.indexOf(segment), sprite, offset);
 		  }
 		}
-
-
 
 		//=========================================================================
 		// THE GAME LOOP
