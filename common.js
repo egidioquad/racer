@@ -327,8 +327,8 @@ var COLORS = {
 	SKY: '#72D7EE',
 	TREE: '#005108',
 	FOG: '#9cbdd6',
-	LIGHT: { road: '#9cbdd6', grass: '#9cbdd6', rumble: '#ffffff', lane: '#ffffff' },
-	DARK: { road: '#9cbdd6', grass: '#9cbdd6', rumble: '#ffffff' },
+	LIGHT: { road: '#82593d', grass: '#618242', rumble: '#ffffff', lane: '#ffffff' },
+	DARK: { road: '#7c5539', grass: '#5a7c39', rumble: '#ffffff' },
 	START: { road: '#ffffff', grass: 'white', rumble: 'white' },
 	FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 };
@@ -393,4 +393,3 @@ SPRITES.BILLBOARDS = [SPRITES.BILLBOARD01, SPRITES.BILLBOARD02, SPRITES.BILLBOAR
 SPRITES.PLANTS = [SPRITES.TREE1, SPRITES.TREE2, SPRITES.DEAD_TREE1, SPRITES.DEAD_TREE2, SPRITES.PALM_TREE, SPRITES.BUSH1, SPRITES.BUSH2, SPRITES.CACTUS, SPRITES.STUMP, SPRITES.BOULDER1, SPRITES.BOULDER2, SPRITES.BOULDER3];
 SPRITES.CARS = [SPRITES.CAR01, SPRITES.CAR02, SPRITES.CAR03, SPRITES.CAR04, SPRITES.SEMI, SPRITES.TRUCK];
 
- 
