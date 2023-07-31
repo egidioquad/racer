@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Racer</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<style>
+		body {
+			background-color: cyan;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			margin: 0;
+		}
+
+		h1 {
+			background-color: #ab12e7;
+			/* You can change this to any color you prefer */
+			color: white;
+			padding: 10px;
+			border-radius: 5px;
+		}
+
+		.button {
+			background-color: #4CAF50;
+			/* Green */
+			border: none;
+			color: white;
+			padding: 15px 32px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 10px 2px;
+			cursor: pointer;
+		}
+
+		.button:disabled {
+			background-color: #888;
+			cursor: not-allowed;
+		}
+
+		input {
+			margin-top: 10px;
+			padding: 10px;
+			font-size: 16px;
+		}
+	</style>
+
+	<script>
+		function checkInput() {
+			var btcAddress = document.getElementById('btcAddress').value;
+			document.getElementById('startButton').disabled = !btcAddress;
+		}
+	</script>
+</head>
+
+<body onload="checkInput()">
+
+	<h1>Racer</h1>
+
+	<input type="text" id="btcAddress" placeholder="Enter btcAddress" oninput="checkInput()">
+
+	<button class="button" id="startButton" onclick="location.href='racer.html'">Start</button>
+
+</body>
+
+</html>
