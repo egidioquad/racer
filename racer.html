@@ -159,6 +159,7 @@
     	  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
     	      score += 1; // Increase score
     	      playerSegment.coins.splice(i, 1); // Remove coin
+						currentLapTime -= 1 ;
     	      break;
     	  }
     	}
@@ -577,27 +578,35 @@
 
 		function resetCoins() {
 		  coins = [];
-			score = 0;
+		  score = 0;
 		  var n, coin, segment, offset, z, sprite;
-		  var minDistance = 10000;  // Set this to whatever minimum distance you want
-		  var lastZ = minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
-			
+		  var coinSeparation = 200; // Set this to the desired minimum distance between coins
+
 		  for (var n = 0; n < totalCoins; n++) {
 		    offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
 			
 		    do {
+		      // Generate a new z value
 		      z = Math.floor(Math.random() * segments.length) * segmentLength;
-		    } while (Math.abs(z - lastZ) < minDistance && findSegment(z) < 100);  // Keep generating new z values until we get one that's far enough away
+				
+		      // Check if the new z value is too close to any existing coins
+		      var tooClose = false;
+		      for (var i = 0; i < coins.length; i++) {
+		        var existingCoin = coins[i];
+		        if (Math.abs(z - existingCoin.z) < coinSeparation) {
+		          tooClose = true;
+		          break;
+		        }
+		      }
+		    } while (tooClose); // Keep generating new z values until we find one that's not too close to other coins
 			
-		    lastZ = z;  // Update the lastZ value
-			
-		    sprite = SPRITES.COIN;
 		    coin = { offset: offset, z: z };
 		    segment = findSegment(coin.z);
 		    segment.coins.push(coin);
 		    coins.push(coin);
 		  }
 		}
+
 
 		//=========================================================================
 		// THE GAME LOOP
@@ -646,66 +655,10 @@
 		}
 
 	//=========================================================================
-	// API calls
+	// API calls (Coming soon...)
 	//=========================================================================
 
-	function fetchData() {
-			fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-				headers: {
-					'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`
-				}
-			})
-				.then(response => response.json())
-				.then(data => {
-					// the content of the file is in data.content, but it is base64-encoded, so it needs to be decoded
-					const fileContent = atob(data.content);
-					console.log(fileContent);
-				})
-				.catch(error => console.error('Error:', error));
-		}
-
-		function writeData() {
-			//const myToken = process.env.GITHUB_TOKEN;  // replaced at build time
-			const userInputValue = document.getElementById('userInput').value; // Get the value entered by the user
-			// Fetch the current contents of the file
-			fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-				headers: {
-					'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`,
-				},
-			})
-				.then(response => response.json())
-				.then(data => {
-					// Decode the current contents and parse it into a JS object
-					const currentContent = JSON.parse(atob(data.content));
-
-					// Modify the contents as necessary
-					//		currentContent.newKey = userInputValue;
-					currentContent.newKey = fast_lap_time;
-
-					// PUT the new contents to the file
-					return fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-						method: 'PUT',
-						headers: {
-							'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`,
-						},
-						body: JSON.stringify({
-							message: 'Update user score',
-							content: btoa(JSON.stringify(currentContent)), // encode new data to base64
-							sha: data.sha,
-						}),
-					});
-				})
-				.then(response => response.json())
-				.then(data => console.log(data))
-				.catch(error => console.error('Error:', error));
-		}
 	</script>
-
-	<button onclick="fetchData()">Fetch Data</button>
-	<button onclick="writeData()">Write Data</button>
-
-	<input type="text" id="userInput" placeholder="Enter a value">
-
 </body>
 
 </html>
