@@ -6,6 +6,12 @@
 	<title>Racer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link href="common.css" rel="stylesheet" type="text/css" />
+	<style>
+		body {
+			background-color: #323232;
+			/* Replace RR, GG, BB with the desired hexadecimal values */
+		}
+	</style>
 </head>
 
 <body>
@@ -90,7 +96,7 @@
 			current_lap_time: { value: null, dom: Dom.get('current_lap_time_value') },
 			last_lap_time: { value: null, dom: Dom.get('last_lap_time_value') },
 			fast_lap_time: { value: null, dom: Dom.get('fast_lap_time_value') },
-			coins: {value: null, dom: Dom.get('coins_value')}
+			coins: { value: null, dom: Dom.get('coins_value') }
 		}
 
 		//=========================================================================
@@ -100,11 +106,11 @@
 		function update(dt) {
 
 			var n, i, car, carW, sprite, spriteW, coin, coinW, coinIndex;
-    	var playerSegment = findSegment(position + playerZ);
-    	var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
-    	var speedPercent = speed / maxSpeed;
-    	var dx = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
-    	var startPosition = position;
+			var playerSegment = findSegment(position + playerZ);
+			var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
+			var speedPercent = speed / maxSpeed;
+			var dx = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
+			var startPosition = position;
 
 			updateCars(dt, playerSegment, playerW);
 
@@ -154,14 +160,14 @@
 			}
 
 			for (i = 0; i < playerSegment.coins.length; i++) {
-    	  coin = playerSegment.coins[i];
-    	  coinW = SPRITES.COIN.w * SPRITES.SCALE;
-    	  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
-    	      score += 1; // Increase score
-    	      playerSegment.coins.splice(i, 1); // Remove coin
-    	      break;
-    	  }
-    	}
+				coin = playerSegment.coins[i];
+				coinW = SPRITES.COIN.w * SPRITES.SCALE;
+				if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
+					score += 1; // Increase score
+					playerSegment.coins.splice(i, 1); // Remove coin
+					break;
+				}
+			}
 
 			playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
 			speed = Util.limit(speed, 0, maxSpeed); // or exceed maxSpeed
@@ -284,7 +290,7 @@
 
 		function deletePreviousCoins() {
 			var i, segment;
-			for (i = 0; i < segments.length; i++) 
+			for (i = 0; i < segments.length; i++)
 				segments[i].coins = [];
 		}
 
@@ -362,7 +368,7 @@
 					spriteY = segment.p1.screen.y;
 					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
 				}
-				
+
 				for (i = 0; i < segment.coins.length; i++) {
 					offset = segment.coins[i].offset;
 					spriteScale = segment.p1.screen.scale;
@@ -576,27 +582,27 @@
 		}
 
 		function resetCoins() {
-		  coins = [];
+			coins = [];
 			score = 0;
-		  var n, coin, segment, offset, z, sprite;
-		  var minDistance = 10000;  // Set this to whatever minimum distance you want
-		  var lastZ = minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
-			
-		  for (var n = 0; n < totalCoins; n++) {
-		    offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
-			
-		    do {
-		      z = Math.floor(Math.random() * segments.length) * segmentLength;
-		    } while (Math.abs(z - lastZ) < minDistance && findSegment(z) < 100);  // Keep generating new z values until we get one that's far enough away
-			
-		    lastZ = z;  // Update the lastZ value
-			
-		    sprite = SPRITES.COIN;
-		    coin = { offset: offset, z: z };
-		    segment = findSegment(coin.z);
-		    segment.coins.push(coin);
-		    coins.push(coin);
-		  }
+			var n, coin, segment, offset, z, sprite;
+			var minDistance = 10000;  // Set this to whatever minimum distance you want
+			var lastZ = minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
+
+			for (var n = 0; n < totalCoins; n++) {
+				offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
+
+				do {
+					z = Math.floor(Math.random() * segments.length) * segmentLength;
+				} while (Math.abs(z - lastZ) < minDistance && findSegment(z) < 100);  // Keep generating new z values until we get one that's far enough away
+
+				lastZ = z;  // Update the lastZ value
+
+				sprite = SPRITES.COIN;
+				coin = { offset: offset, z: z };
+				segment = findSegment(coin.z);
+				segment.coins.push(coin);
+				coins.push(coin);
+			}
 		}
 
 		//=========================================================================
@@ -641,15 +647,15 @@
 			playerZ = (cameraHeight * cameraDepth);
 			resolution = height / 480;
 
-			if ((segments.length == 0) || (options.segmentLength) || (options.rumbleLength)) 
+			if ((segments.length == 0) || (options.segmentLength) || (options.rumbleLength))
 				resetRoad(); // only rebuild road when necessary
 		}
 
-	//=========================================================================
-	// API calls
-	//=========================================================================
+		//=========================================================================
+		// API calls
+		//=========================================================================
 
-	function fetchData() {
+		function fetchData() {
 			fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
 				headers: {
 					'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`
@@ -700,11 +706,6 @@
 				.catch(error => console.error('Error:', error));
 		}
 	</script>
-
-	<button onclick="fetchData()">Fetch Data</button>
-	<button onclick="writeData()">Write Data</button>
-
-	<input type="text" id="userInput" placeholder="Enter a value">
 
 </body>
 
