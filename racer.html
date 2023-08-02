@@ -83,6 +83,7 @@
 		var offRoadLimit = maxSpeed / 4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
 		var totalCars = 150;                     // total number of cars on the road
 		var totalCoins = 15;											// total number of coins on the road
+		var totalNitros = 3;												// total number of nitros on the road
 		var currentLapTime = 0;                       // current lap time
 		var lastLapTime = null;                    // last lap time
 
@@ -313,7 +314,7 @@
 			ctx.clearRect(0, 0, width, height);
 
 			Render.background(ctx, background, width, height, BACKGROUND.SKY, skyOffset, resolution * skySpeed * playerY);
-			Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
+			// Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
 			Render.background(ctx, background, width, height, BACKGROUND.TREES, treeOffset, resolution * treeSpeed * playerY);
 
 			var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
@@ -501,7 +502,7 @@
 			addHill(ROAD.LENGTH.MEDIUM, ROAD.HILL.HIGH);
 			addSCurves();
 			addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM, ROAD.HILL.NONE);
-			addHill(ROAD.LENGTH.LONG, ROAD.HILL.HIGH);
+			addHill(ROAD.LENGTH.LONG, -ROAD.HILL.HIGH);
 			addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM, -ROAD.HILL.LOW);
 			addBumps();
 			addHill(ROAD.LENGTH.LONG, -ROAD.HILL.MEDIUM);

@@ -28,7 +28,6 @@ body {
   display: inline-block;
   cursor: pointer;
   position: absolute;
-  margin-left: 20em;
 }
 #mute.on {
   background-position: -32px 0px;
