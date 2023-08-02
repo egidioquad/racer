@@ -104,6 +104,13 @@
 		// UPDATE THE GAME WORLD
 		//=========================================================================
 
+		function changeBackgroundColor(element, color, duration) {
+		  element.style.backgroundColor = color;
+		  setTimeout(function() {
+		    element.style.backgroundColor = '';
+		  }, duration);
+		}
+
 		function update(dt) {
 
 			var n, i, car, carW, sprite, spriteW, coin, coinW, coinIndex;
@@ -161,14 +168,19 @@
 			}
 
 			for (i = 0; i < playerSegment.coins.length; i++) {
-				coin = playerSegment.coins[i];
-				coinW = SPRITES.COIN.w * SPRITES.SCALE;
-				if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
-					score += 1; // Increase score
-					playerSegment.coins.splice(i, 1); // Remove coin
-					break;
-				}
-			}
+  		  coin = playerSegment.coins[i];
+  		  coinW = SPRITES.COIN.w * SPRITES.SCALE;
+  		  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
+  		    score += 1; // Increase score
+  		    playerSegment.coins.splice(i, 1); // Remove coin
+				
+  		    // Call the function to change the background color of current_lap_time span to green for 2 seconds
+  		    var currentLapTimeSpan = document.getElementById('current_lap_time');
+  		    changeBackgroundColor(currentLapTimeSpan, 'green', 1000);
+				
+  		    break;
+  		  }
+  		}
 
 			playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
 			speed = Util.limit(speed, 0, maxSpeed); // or exceed maxSpeed
