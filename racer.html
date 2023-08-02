@@ -375,7 +375,7 @@
 					spriteScale = segment.p1.screen.scale;
 					spriteX = segment.p1.screen.x + (spriteScale * offset * roadWidth * width / 2);
 					spriteY = segment.p1.screen.y;
-					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, SPRITES.COIN, spriteScale, spriteX, spriteY, offset, -1, segment.clip);
+					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, SPRITES.COIN, spriteScale, spriteX, spriteY, (offset < 0 ? -1 : 0), -1, segment.clip);
 				}
 
 				if (segment == playerSegment) {
@@ -573,8 +573,8 @@
 			for (var n = 0; n < totalCars; n++) {
 				offset = Math.random() * Util.randomChoice([-0.8, 0.8]);
 				z = Math.floor(Math.random() * segments.length) * segmentLength;
-				sprite = Util.randomChoice(SPRITES.CARS);
-				speed = maxSpeed / 4 + Math.random() * maxSpeed / (sprite == SPRITES.SEMI ? 4 : 2);
+				sprite = Util.randomChoice(SPRITES.CREATURES);
+				speed = maxSpeed / 4 + Math.random() * maxSpeed / (sprite == SPRITES.TROLL ? 4 : 2);
 				car = { offset: offset, z: z, sprite: sprite, speed: speed };
 				segment = findSegment(car.z);
 				segment.cars.push(car);
@@ -583,28 +583,45 @@
 		}
 
 		function resetCoins() {
-			coins = [];
-			score = 0;
-			var n, coin, segment, offset, z, sprite;
-			var minDistance = 10000;  // Set this to whatever minimum distance you want
-			var lastZ = minDistance;  // Initialize to a value that allows the first coin to be placed anywhere
+		  coins = [];
+		  score = 0;
+		  var n, coin, segment, offset, z, sprite;
+		  var coinSeparation = 200; // Set this to the desired minimum distance between coins
 
-			for (var n = 0; n < totalCoins; n++) {
-				offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
-
-				do {
-					z = Math.floor(Math.random() * segments.length) * segmentLength;
-				} while (Math.abs(z - lastZ) < minDistance && findSegment(z) < 100);  // Keep generating new z values until we get one that's far enough away
-
-				lastZ = z;  // Update the lastZ value
-
-				sprite = SPRITES.COIN;
-				coin = { offset: offset, z: z };
-				segment = findSegment(coin.z);
-				segment.coins.push(coin);
-				coins.push(coin);
-			}
+		  for (var n = 0; n < totalCoins; n++) {
+		    offset = Math.random() * Util.randomFloat(-0.6, 0.6, 5);
+			
+		    do {
+		      // Generate a new z value
+		      z = Math.floor(Math.random() * segments.length) * segmentLength;
+				
+		      // Check if the new z value is too close to any existing coins
+		      var tooClose = false;
+		      for (var i = 0; i < coins.length; i++) {
+		        var existingCoin = coins[i];
+		        if ((z - existingCoin.z) >= 0) {
+							if ((z - existingCoin.z) < coinSeparation) {
+								tooClose = true;
+								break;
+							}
+		        } else if ((existingCoin.z - z) < coinSeparation) {
+							tooClose = true;
+							break;
+						}
+		      }
+				
+		      // Check if the new z value is within the desired range
+		      var isWithinRange = findSegment(z).index > 50 && z < segments.length - 30;
+				
+		    } while (tooClose || isWithinRange); // Keep generating new z values until we find one that's not too close to other coins and within the desired range
+			
+		    coin = { offset: offset, z: z };
+		    segment = findSegment(coin.z);
+		    segment.coins.push(coin);
+		    coins.push(coin);
+		  }
 		}
+
 
 
 		//=========================================================================
@@ -654,60 +671,10 @@
 		}
 
 		//=========================================================================
-		// API calls
+		// API calls (Coming soon...)
 		//=========================================================================
 
-		function fetchData() {
-			fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-				headers: {
-					'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`
-				}
-			})
-				.then(response => response.json())
-				.then(data => {
-					// the content of the file is in data.content, but it is base64-encoded, so it needs to be decoded
-					const fileContent = atob(data.content);
-					console.log(fileContent);
-				})
-				.catch(error => console.error('Error:', error));
-		}
-
-		function writeData() {
-			//const myToken = process.env.GITHUB_TOKEN;  // replaced at build time
-			const userInputValue = document.getElementById('userInput').value; // Get the value entered by the user
-			// Fetch the current contents of the file
-			fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-				headers: {
-					'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`,
-				},
-			})
-				.then(response => response.json())
-				.then(data => {
-					// Decode the current contents and parse it into a JS object
-					const currentContent = JSON.parse(atob(data.content));
-
-					// Modify the contents as necessary
-					//		currentContent.newKey = userInputValue;
-					currentContent.newKey = fast_lap_time;
-
-					// PUT the new contents to the file
-					return fetch('https://api.github.com/repos/egidioquad/racer/contents/database.json', {
-						method: 'PUT',
-						headers: {
-							'Authorization': `Bearer <PUT GITHUB TOKEN HERE>`,
-						},
-						body: JSON.stringify({
-							message: 'Update user score',
-							content: btoa(JSON.stringify(currentContent)), // encode new data to base64
-							sha: data.sha,
-						}),
-					});
-				})
-				.then(response => response.json())
-				.then(data => console.log(data))
-				.catch(error => console.error('Error:', error));
-		}
-	</script>
+</script>
 
 </body>
 
