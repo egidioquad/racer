@@ -80,7 +80,7 @@ var Util = {
 	randomFloat: function (min, max, decimals) {
 		var random = Math.random() * (max - min) + min;
 		return random.toFixed(decimals);
-	} 
+	}
 }
 
 //=========================================================================
@@ -383,9 +383,10 @@ var SPRITES = {
 	PLAYER_STRAIGHT: { x: 1085, y: 480, w: 80, h: 50 },
 	PLAYER_RIGHT: { x: 995, y: 557, w: 80, h: 50 },
 	COIN: { x: 1380, y: 1085, w: 92, h: 86 },
+	NITRO: { x: 1380, y: 1170, w: 85, h: 100 },
 	ARCHER: { x: 1205, y: 1080, w: 67, h: 80 },
 	TROLLFACE: { x: 1365, y: 650, w: 105, h: 100 },
-	TROLL: { x: 1350, y: 540, w: 126, h: 112 },
+	TROLL: { x: 1350, y: 540, w: 126, h: 110 },
 	BROWN_DRAGON: { x: 1093, y: 1080, w: 100, h: 80 }
 };
 
