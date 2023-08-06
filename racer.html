@@ -89,9 +89,9 @@
 		var lastLapTime = null;                    // last lap time
 
 		// Nitro variables
-		var turboDuration = 3.0;                            // duration of turbo in seconds
-		var turboAnimation = 0.5;                           // duration of animation to do progressive increase/decrease of fov
-		var turboFovIncrement = 1.4;                        // multiplier of fov during turbo
+		var turboDuration = 7.5;                            // duration of turbo in seconds
+		var turboAnimation = 2.5;                           // duration of animation to do progressive increase/decrease of fov
+		var turboFovIncrement = 1.3;                        // multiplier of fov during turbo
 		var turboMaxSpeed = maxSpeed * 1.3;         // maximum speed under turbo
 		var turboCentrifugal = centrifugal/2;                         // torque when under turbo (else the player cannot turn in curves)
 		var turboTriggered = false;                         // internal variable - turbo triggered by player?
@@ -153,6 +153,27 @@
 			else
 				speed = Util.accelerate(speed, decel, dt);
 
+			if (playerSegment.coin !== null) {
+				coin = playerSegment.coin;
+				coinW = SPRITES.COIN.w * SPRITES.SCALE;
+				if (Util.overlap(playerX, playerW, coin.offset, coinW, 0.9)) {
+					console.log("Money")
+					score += 1;
+					playerSegment.coin = null;
+					var currentLapTimeSpan = document.getElementById('current_lap_time');
+					changeBackgroundColor(currentLapTimeSpan, 'green', 1000);
+				}
+			}
+			
+			if (playerSegment.nitro !== null) {
+				nitro = playerSegment.nitro;
+				nitroW = SPRITES.NITRO.w * SPRITES.SCALE;
+				if (Util.overlap(playerX, playerW, nitro.offset, nitroW, 0.8)) {
+					console.log("GO CRAZYYYY")
+					triggerTurbo();
+					playerSegment.nitro = null;
+				}
+			}
 
 			if ((playerX < -1) || (playerX > 1)) {
 
@@ -181,29 +202,7 @@
 					}
 				}
 			}
-
-			for (i = 0; i < playerSegment.coins.length; i++) {
-  		  coin = playerSegment.coins[i];
-  		  coinW = SPRITES.COIN.w * SPRITES.SCALE;
-  		  if (Util.overlap(playerX, playerW, coin.offset, coinW)) {
-					score += 1;
-  		    playerSegment.coins.splice(i, 1); // Remove coin
-  		    var currentLapTimeSpan = document.getElementById('current_lap_time');
-  		    changeBackgroundColor(currentLapTimeSpan, 'green', 1000);
-  		    break;
-  		  }
-  		}
 			
-			for (i = 0; i < playerSegment.nitros.length; i++) {
-				nitro = playerSegment.nitros[i];
-				nitroW = SPRITES.NITRO.w * SPRITES.SCALE;
-				if (Util.overlap(playerX, playerW, nitro.offset, nitroW)) {
-					console.log("go crazy")
-  		    playerSegment.nitros.splice(i, 1);
-					triggerTurbo();
-					break;
-				}
-			}
 
 			playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
 
@@ -419,16 +418,36 @@
 				
 				for (i = 0; i < segment.cars.length; i++) {
 					car = segment.cars[i];
-					sprite = car.sprite;
 					spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent);
 					spriteX = Util.interpolate(segment.p1.screen.x, segment.p2.screen.x, car.percent) + (spriteScale * car.offset * roadWidth * width / 2);
 					spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, car.percent);
 					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
 				}
 
-				renderObjects(ctx, width, height, resolution, roadWidth, sprites, segment.sprites, segment);
-				renderObjects(ctx, width, height, resolution, roadWidth, sprites, segment.coins, segment);
-				renderObjects(ctx, width, height, resolution, roadWidth, sprites, segment.nitros, segment);
+				for (var i = 0; i < segment.sprites.length; i++) {
+		  	  sprite = segment.sprites[i];
+		  	  spriteScale = segment.p1.screen.scale;
+		  	  spriteX = segment.p1.screen.x + (spriteScale * sprite.offset * roadWidth * width / 2);
+		  	  spriteY = segment.p1.screen.y;
+		  	  Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
+				}
+				
+				if (segment.coin !== null) {
+					coin = segment.coin;
+		  	  spriteScale = segment.p1.screen.scale;
+		  	  spriteX = segment.p1.screen.x + (spriteScale * coin.offset * roadWidth * width / 2);
+		  	  spriteY = segment.p1.screen.y;
+					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, coin.source, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+				}
+
+				if (segment.nitro !== null) {
+					nitro = segment.nitro;
+		  	  spriteScale = segment.p1.screen.scale;
+		  	  spriteX = segment.p1.screen.x + (spriteScale * nitro.offset * roadWidth * width / 2);
+		  	  spriteY = segment.p1.screen.y;
+					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, nitro.source, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+				}
+				
 
 				if (segment == playerSegment) {
 					Render.player(ctx, width, height, resolution, roadWidth, sprites, speed / maxSpeed,
@@ -439,17 +458,6 @@
 						playerSegment.p2.world.y - playerSegment.p1.world.y);
 				}
 			}
-		}
-		
-		function renderObjects(ctx, width, height, resolution, roadWidth, sprites, objectsArray, segment) {
-		  var object, spriteScale, spriteX, spriteY;
-		  for (var i = 0; i < objectsArray.length; i++) {
-		    object = objectsArray[i];
-		    spriteScale = segment.p1.screen.scale;
-		    spriteX = segment.p1.screen.x + (spriteScale * object.offset * roadWidth * width / 2);
-		    spriteY = segment.p1.screen.y;
-		    Render.sprite(ctx, width, height, resolution, roadWidth, sprites, object.source, spriteScale, spriteX, spriteY, (object.offset < 0 ? -1 : 0), -1, segment.clip);
-		  }
 		}
 
 		function findSegment(z) {
@@ -471,8 +479,8 @@
 				curve: curve,
 				sprites: [],
 				cars: [],
-				coins: [],
-				nitros: [],
+				coin: null,
+				nitro: null,
 				color: Math.floor(n / rumbleLength) % 2 ? COLORS.DARK : COLORS.LIGHT
 			});
 		}
@@ -646,22 +654,23 @@
 				cars.push(car);
 			}
 		}
-
+		
 		function resetCoins() {
 			coins = [];
 		  score = 0;
 		  var n, coin, segment, offset, z, sprite;
-		  var coinSeparation = 5000; // Set this to the desired minimum distance between coins
-
+		  var coinSeparation = 7500; // Set this to the desired minimum distance between coins
+			
 			for (i = 0; i < segments.length; i++)
-				segments[i].coins = [];
+			segments[i].coins = [];
 			
 		  for (var n = 0; n < totalCoins; n++) {
-				offset = Util.randomFloat(-0.6, 0.6, 5);
+				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
+				// offset = Util.randomFloat(-0.6, 0.6, 5);
 				z = getValidZ(coins, 50, 30, coinSeparation);			
 		    coin = { offset: offset, z: z, source: SPRITES.COIN };
 		    segment = findSegment(coin.z);
-		    segment.coins.push(coin);
+		    segment.coin = coin;
 		    coins.push(coin);
 		  }
 		}
@@ -669,17 +678,17 @@
 		function resetNitros() {
 			nitros = [];
 			var n, nitro, segment, offset, z;
-			var nitroSeparation = 10000; // Set this to the desired minimum distance between coins
+			var nitroSeparation = 20000; // Set this to the desired minimum distance between coins
 
 			for (i = 0; i < segments.length; i++)
 				segments[i].nitros = [];
 
 			for (var n = 0; n < totalNitros; n++) {
-				offset = Util.randomFloat(-0.6, 0.6, 5);
+				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
 				z = getValidZ(nitros, 50, 70, nitroSeparation)
 				nitro = { offset: offset, z: z, source: SPRITES.NITRO};
 				segment = findSegment(nitro.z);
-				segment.nitros.push(nitro);
+				segment.nitro = nitro;
 				nitros.push(nitro);
 			}
 		}
