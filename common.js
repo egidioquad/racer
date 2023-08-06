@@ -75,11 +75,6 @@ var Util = {
 		var min2 = x2 - (w2 * half);
 		var max2 = x2 + (w2 * half);
 		return !((max1 < min2) || (min1 > max2));
-	},
-
-	randomFloat: function (min, max, decimals) {
-		var random = Math.random() * (max - min) + min;
-		return random.toFixed(decimals);
 	}
 }
 
@@ -364,7 +359,7 @@ var SPRITES = {
 	BILLBOARD01: { x: 625, y: 375, w: 300, h: 170 },
 	BILLBOARD06: { x: 488, y: 555, w: 298, h: 190 },
 	BILLBOARD05: { x: 5, y: 897, w: 298, h: 190 },
-	BILLBOARD007: { x: 313, y: 897, w: 298, h: 190 },
+	BILLBOARD007: { x: 305, y: 890, w: 290, h: 190 },
 	BOULDER2: { x: 621, y: 897, w: 298, h: 140 },
 	TREE2: { x: 1205, y: 5, w: 282, h: 295 },
 	BILLBOARD04: { x: 1205, y: 310, w: 268, h: 170 },
@@ -385,14 +380,14 @@ var SPRITES = {
 	COIN: { x: 1380, y: 1085, w: 92, h: 86 },
 	NITRO: { x: 1380, y: 1170, w: 85, h: 100 },
 	ARCHER: { x: 1205, y: 1080, w: 67, h: 80 },
-	TROLLFACE: { x: 1365, y: 650, w: 105, h: 100 },
+	TROLLFACE: { x: 1365, y: 650, w: 105, h: 95 },
 	TROLL: { x: 1350, y: 540, w: 126, h: 110 },
 	BROWN_DRAGON: { x: 1093, y: 1080, w: 100, h: 80 }
 };
 
 SPRITES.SCALE = 0.3 * (1 / SPRITES.PLAYER_STRAIGHT.w) // the reference sprite width should be 1/3rd the (half-)roadWidth
 
-SPRITES.BILLBOARDS = [SPRITES.BILLBOARD01, SPRITES.BILLBOARD02, SPRITES.BILLBOARD03, SPRITES.BILLBOARD04, SPRITES.BILLBOARD05, SPRITES.BILLBOARD06, SPRITES.BILLBOARD007, SPRITES.BILLBOARD08, SPRITES.BILLBOARD09];
+SPRITES.BILLBOARDS = [SPRITES.BILLBOARD007];
 SPRITES.PLANTS = [SPRITES.TREE1, SPRITES.TREE2, SPRITES.DEAD_TREE1, SPRITES.DEAD_TREE2, SPRITES.PALM_TREE, SPRITES.BUSH1, SPRITES.BUSH2, SPRITES.CACTUS, SPRITES.STUMP, SPRITES.BOULDER1, SPRITES.BOULDER2, SPRITES.BOULDER3];
 SPRITES.CREATURES = [SPRITES.TROLLFACE, SPRITES.ARCHER, SPRITES.TROLL];
 

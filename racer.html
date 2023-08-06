@@ -90,8 +90,8 @@
 
 		// Nitro variables
 		var turboDuration = 7.5;                            // duration of turbo in seconds
-		var turboAnimation = 2.5;                           // duration of animation to do progressive increase/decrease of fov
-		var turboFovIncrement = 1.3;                        // multiplier of fov during turbo
+		var turboAnimation = 1.5;                           // duration of animation to do progressive increase/decrease of fov
+		var turboFovIncrement = 1.4;                        // multiplier of fov during turbo
 		var turboMaxSpeed = maxSpeed * 1.3;         // maximum speed under turbo
 		var turboCentrifugal = centrifugal/2;                         // torque when under turbo (else the player cannot turn in curves)
 		var turboTriggered = false;                         // internal variable - turbo triggered by player?
@@ -133,6 +133,8 @@
 
 			updateCars(dt, playerSegment, playerW);
 
+			console.log(segments.length)
+
 			position = Util.increase(position, dt * speed, trackLength);
 
 			if (keyLeft)
@@ -168,7 +170,7 @@
 			if (playerSegment.nitro !== null) {
 				nitro = playerSegment.nitro;
 				nitroW = SPRITES.NITRO.w * SPRITES.SCALE;
-				if (Util.overlap(playerX, playerW, nitro.offset, nitroW, 0.8)) {
+				if (Util.overlap(playerX, playerW, nitro.offset, nitroW, 0.9 )) {
 					console.log("GO CRAZYYYY")
 					triggerTurbo();
 					playerSegment.nitro = null;
@@ -599,19 +601,19 @@
 			var n, i;
 
 			addSprite(20, SPRITES.BILLBOARD007, -1);
-			addSprite(40, SPRITES.BILLBOARD06, -1);
-			addSprite(60, SPRITES.BILLBOARD08, -1);
-			addSprite(80, SPRITES.BILLBOARD09, -1);
-			addSprite(100, SPRITES.BILLBOARD01, -1);
-			addSprite(120, SPRITES.BILLBOARD02, -1);
-			addSprite(140, SPRITES.BILLBOARD03, -1);
-			addSprite(160, SPRITES.BILLBOARD04, -1);
-			addSprite(180, SPRITES.BILLBOARD05, -1);
+			addSprite(40, SPRITES.BILLBOARD007, -1);
+			addSprite(60, SPRITES.BILLBOARD007, -1);
+			addSprite(80, SPRITES.BILLBOARD007, -1);
+			addSprite(100, SPRITES.BILLBOARD007, -1);
+			addSprite(120, SPRITES.BILLBOARD007, -1);
+			addSprite(140, SPRITES.BILLBOARD007, -1);
+			addSprite(160, SPRITES.BILLBOARD007, -1);
+			addSprite(180, SPRITES.BILLBOARD007, -1);
 			
 			addSprite(240, SPRITES.BILLBOARD007, -1.2);
-			addSprite(240, SPRITES.BILLBOARD06, 1.2);
+			addSprite(240, SPRITES.BILLBOARD007, 1.2);
 			addSprite(segments.length - 25, SPRITES.BILLBOARD007, -1.2);
-			addSprite(segments.length - 25, SPRITES.BILLBOARD06, 1.2);
+			addSprite(segments.length - 25, SPRITES.BILLBOARD007, 1.2);
 
 			for (n = 10; n < 200; n += 4 + Math.floor(n / 100)) {
 				addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random() * 0.5);
@@ -624,7 +626,7 @@
 				addSprite(n + Util.randomInt(0, 5), SPRITES.TREE2, -1 - (Math.random() * 2));
 			}
 
-			for (n = 200; n < segments.length; n += 3) {
+			for (n = 200; n < segments.length; n += 1) {
 				addSprite(n, Util.randomChoice(SPRITES.PLANTS), Util.randomChoice([1, -1]) * (2 + Math.random() * 5));
 			}
 
@@ -632,7 +634,7 @@
 			for (n = 1000; n < (segments.length - 50); n += 100) {
 				side = Util.randomChoice([1, -1]);
 				addSprite(n + Util.randomInt(0, 50), Util.randomChoice(SPRITES.BILLBOARDS), -side);
-				for (i = 0; i < 20; i++) {
+				for (i = 0; i < 15; i++) {
 					sprite = Util.randomChoice(SPRITES.PLANTS);
 					offset = side * (1.5 + Math.random());
 					addSprite(n + Util.randomInt(0, 50), sprite, offset);
@@ -662,11 +664,10 @@
 		  var coinSeparation = 7500; // Set this to the desired minimum distance between coins
 			
 			for (i = 0; i < segments.length; i++)
-			segments[i].coins = [];
+				segments[i].coin = null;
 			
 		  for (var n = 0; n < totalCoins; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				// offset = Util.randomFloat(-0.6, 0.6, 5);
 				z = getValidZ(coins, 50, 30, coinSeparation);			
 		    coin = { offset: offset, z: z, source: SPRITES.COIN };
 		    segment = findSegment(coin.z);
@@ -678,14 +679,14 @@
 		function resetNitros() {
 			nitros = [];
 			var n, nitro, segment, offset, z;
-			var nitroSeparation = 20000; // Set this to the desired minimum distance between coins
+			var nitroSeparation = 75000; // Set this to the desired minimum distance between coins
 
 			for (i = 0; i < segments.length; i++)
-				segments[i].nitros = [];
+				segments[i].nitro = null;
 
 			for (var n = 0; n < totalNitros; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				z = getValidZ(nitros, 50, 70, nitroSeparation)
+				z = getValidZ(nitros, 50, 150, nitroSeparation)
 				nitro = { offset: offset, z: z, source: SPRITES.NITRO};
 				segment = findSegment(nitro.z);
 				segment.nitro = nitro;
@@ -713,8 +714,8 @@
 				}
 			
 				// Check if the new z value is within the desired range
-				var isWithinRange = findSegment(z).index > startSegment &&
-														findSegment(z) < segments.length - endSegment;
+				var isWithinRange = findSegment(z).index < startSegment ||
+														findSegment(z).index > segments.length - endSegment;
 			
 			} while (tooClose || isWithinRange); // Keep generating new z values until we find one that's not too close to other nitros and within the desired range
 			return z;
@@ -769,8 +770,8 @@
 		}
 
 		function updateFOV(fov) {
-      cameraDepth            = 1 / Math.tan((fov/2) * Math.PI/180);
-      playerZ                = (cameraHeight * cameraDepth);
+      cameraDepth = 1 / Math.tan((fov/2) * Math.PI/180);
+      playerZ = (cameraHeight * cameraDepth);
     }
 
 		function triggerTurbo() {
