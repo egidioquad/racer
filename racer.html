@@ -6,12 +6,6 @@
 	<title>Racer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link href="common.css" rel="stylesheet" type="text/css" />
-	<style>
-		body {
-			background-color: #323232;
-			/* Replace RR, GG, BB with the desired hexadecimal values */
-		}
-	</style>
 </head>
 
 <body>
@@ -42,8 +36,8 @@
 
 		var fps = 60;                      // how many 'update' frames per second
 		var step = 1 / fps;                   // how long is each frame (in seconds)
-		var width = 1024;                    // logical canvas width
-		var height = 768;                     // logical canvas height
+		var width = 1280;                    // logical canvas width
+		var height = 960;                     // logical canvas height
 		var centrifugal = 0.3;                     // centrifugal force multiplier when going around curves
 		var offRoadDecel = 0.99;                    // speed multiplier when off road (e.g. you lose 2% speed each update frame)
 		var skySpeed = 0.001;                   // background sky layer scroll speed when going around curve (or up hill)
@@ -133,7 +127,7 @@
 
 			updateCars(dt, playerSegment, playerW);
 
-			console.log(segments.length)
+			console.log(resolution);
 
 			position = Util.increase(position, dt * speed, trackLength);
 
@@ -679,7 +673,7 @@
 		function resetNitros() {
 			nitros = [];
 			var n, nitro, segment, offset, z;
-			var nitroSeparation = 75000; // Set this to the desired minimum distance between coins
+			var nitroSeparation = 100000; // Set this to the desired minimum distance between coins
 
 			for (i = 0; i < segments.length; i++)
 				segments[i].nitro = null;
