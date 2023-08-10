@@ -1,110 +1,131 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Racer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-<head>
-	<title>Racer</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style>
+            body {
+                background-color: #323232;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
 
-	<style>
-		body {
-			background-color: #323232;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			height: 100vh;
-			margin: 0;
-		}
+            .button {
+                background-color: #6d1ea1;
+                /* Green */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 10px 2px;
+                cursor: pointer;
+                border-radius: 15px;
+            }
 
-		h1 {
-			background-color: #ab12e7;
-			/* You can change this to any color you prefer */
-			color: white;
-			padding: 10px;
-			border-radius: 15px;
-		}
+            .button:disabled {
+                background-color: #888;
+                cursor: not-allowed;
+            }
 
-		.button {
-			background-color: #6d1ea1;
-			/* Green */
-			border: none;
-			color: white;
-			padding: 15px 32px;
-			text-align: center;
-			text-decoration: none;
-			display: inline-block;
-			font-size: 16px;
-			margin: 10px 2px;
-			cursor: pointer;
-			border-radius: 15px;
-		}
+            input {
+                margin-top: 10px;
+                padding: 10px;
+                font-size: 16px;
+            }
+        </style>
 
-		.button:disabled {
-			background-color: #888;
-			cursor: not-allowed;
-		}
+        <script>
+            ///////////
+            //API CALLS
+            ///////////
+            function checkInput() {
+                var inputAddress =
+                    document.getElementById("inputAddress").value;
+                document.getElementById("startButton").disabled = !inputAddress;
+            }
+            function isBitcoinAddress(input) {
+                // Regular expression for Bitcoin address format
+                const btcAddressRegex = /^(1|3)[a-zA-Z0-9]{25,34}$/;
+                return btcAddressRegex.test(input);
+            }
 
-		input {
-			margin-top: 10px;
-			padding: 10px;
-			font-size: 16px;
-		}
-	</style>
+            function sendData() {
+                // Get the input data (inputAddress) from the input field
+                const inputAddress =
+                    document.getElementById("inputAddress").value;
 
+                // Check if the inputAddress is in the format of a Bitcoin address
+                if (isBitcoinAddress(inputAddress)) {
+                    const data = {
+                        inputAddress: inputAddress,
+                    };
 
+                    const sha256 = fetch(
+                        "https://pvrgwmyaxynklimiusly.functions.supabase.co/route",
+                        {
+                            method: "POST",
+                            headers: {
+                                Authorization:
+                                    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(data),
+                        }
+                    )
+                        .then((response) => {
+                            console.log(response.status);
+                            if (response.body.status === 200) {
+                                console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
+                            } else {
+                                console.error(
+                                    "Error from server:",
+                                    response.body.status
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.log("not sending request");
+                            console.error("Network error:", error);
+                        });
+                    localStorage.setItem("auth_token", sha256); //auth token in local storage
+                } else {
+                    console.log("Invalid Bitcoin address format!");
+                }
+            }
+        </script>
+    </head>
 
+    <body onload="checkInput()">
+        <img
+            class="image"
+            src="images/dragonRacer.png"
+            alt="Image description"
+        />
 
+        <input
+            type="text"
+            id="inputAddress"
+            placeholder="Enter btcAddress"
+            oninput="checkInput()"
+        />
 
-
-
-
-
-	<script>
-		function checkInput() {
-			var btcAddress = document.getElementById('btcAddress').value;
-			document.getElementById('startButton').disabled = !btcAddress;
-		}
-		function sendData() {
-			// Get the input data (btcAddress) from the input field
-			const btcAddress = document.getElementById('btcAddress').value;
-			const timestamp = Date.now();
-
-			const data = {
-				btcAddress: btcAddress,
-				timestamp: timestamp
-			};
-
-			const sha256 = fetch('https://placeholder-uri.com/api', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(data)
-			})
-				.then(response => {
-					if (response.ok) {
-						console.log('Data sent successfully!');
-					} else {
-						console.log('Error sending data:', response.statusText);
-					}
-				})
-				.catch(error => {
-					console.error('Network error:', error);
-				});
-		}
-	</script>
-</head>
-
-<body onload="checkInput()">
-
-	<img class="image" src="images/dragonRacer.png" alt="Image description">
-
-	<input type="text" id="btcAddress" placeholder="Enter btcAddress" oninput="checkInput()">
-
-	<button class="button" id="startButton" onclick="location.href='racer.html', sendData()">Start</button>
-
-	</div>
-
-</body>
-
+        <button
+            class="button"
+            id="startButton"
+            onclick="
+			//location.href='racer.html',
+			 sendData()"
+        >
+            Start
+        </button>
+        <h1 style="opacity: 0">3KeKyoPBAWjp5R36VHe9Kb7wWC6xZqBKUC</h1>
+    </body>
 </html>
