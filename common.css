@@ -1,30 +1,30 @@
-/****************************************/
-/* common styles used for v1 through v4 */
-/****************************************/
+/******************/
+/* common styles  */
+/******************/
 body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #323232;
 }
+
 #racer {
   position: absolute;
   z-index: 0;
-  width: 1164px;
-  height: 875px;
-  border: 2px solid black;
-  margin-left: 23em;
-  margin-top: 1em;
+  width: 1024px;
+  height: 768px;
+  border: 2px solid rgb(255, 255, 255);
 }
 
 #canvas {
   position: absolute;
   z-index: 0;
-  width: 1164px;
-  height: 875px;
+  width: 1024px;
+  height: 768px;
   z-index: 0;
   background-color: #72d7ee;
 }
 
 #mute {
+  position: absolute;
   background-position: 0px 0px;
   width: 32px;
   height: 32px;
@@ -32,28 +32,25 @@ body {
   display: inline-block;
   cursor: pointer;
   position: relative;
-  transform: scale(2);
-  margin-left: 100.3em;
-  margin-top: 1em;
 }
+
 #mute.on {
   background-position: -32px 0px;
 }
 
-/**************************************************/
-/* rudimentary heads up display (only used in v4) */
-/**************************************************/
+/*********************************/
+/* rudimentary heads up display  */
+/*********************************/
 
 #hud {
   position: absolute;
   z-index: 1;
-  width: 1164px;
+  width: 1024px;
   padding: 10px 0;
   font-family: Verdana, Geneva, sans-serif;
-  font-size: 1em;
-  background-color: rgba(255, 0, 0, 0.4);
+  background-color: rgba(255, 0, 0, 0.465);
   color: black;
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid rgb(255, 255, 255);
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -61,7 +58,7 @@ body {
 #hud .hud {
   background-color: rgba(255, 255, 255, 0.6);
   padding: 10px;
-  border: 1px solid black;
+  border: 1px solid rgb(255, 255, 255);
   margin: 0 10px;
   transition-property: background-color;
   transition-duration: 2s;
@@ -92,9 +89,62 @@ body {
   float: right;
 }
 #hud .value {
-  color: black;
+  color: rgb(0, 0, 0);
   font-weight: bold;
 }
 #hud .fastest {
   background-color: rgba(255, 215, 0, 0.5);
+}
+
+/******************/
+/* Mobile gamepad */
+/******************/
+
+#gamepad {
+  margin-left: 0; /* Adjust as needed */
+  width: 100%; /* Adjust as needed */
+  height: 300px;
+  position: absolute;
+  justify-content: space-between; /* Spread items evenly */
+  font-size: 4em;
+}
+
+.gamepad-button {
+  background: rgba(255, 0, 0, 0.274);
+  width: 2em;
+  height: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  float: left;
+  
+  /* Disable selection of text for gamepad buttons (so that user can press without selecting the text) */
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  /*
+   Introduced in IE 10.
+   See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+  */
+  -ms-user-select: none;
+  user-select: none;
+  color: white;
+  border: 2px solid white; /* Add white border */
+  margin: 2px; /* Add margin for spacing between buttons */
+}
+
+.gamepad-button span {
+    display: inline-block;
+}
+
+.right-buttons {
+  position: relative;
+  margin-left: 94%;
+  margin-top: 10%;
+}
+
+.left-buttons {
+  position: inherit;
+  margin-left: 1%;
+  margin-top: 25%;
 }
