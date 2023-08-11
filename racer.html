@@ -76,7 +76,7 @@
 		var decel = -maxSpeed / 5;             // 'natural' deceleration rate when neither accelerating, nor braking
 		var offRoadDecel = -maxSpeed / 2;             // off road deceleration is somewhere in between
 		var offRoadLimit = maxSpeed / 4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
-		var totalCars = 200;                     // total number of cars on the road
+		var totalCars = 175;                     // total number of cars on the road
 		var totalCoins = 20;											// total number of coins on the road
 		var totalNitros = 3;												// total number of nitros on the road
 		var currentLapTime = 0;                       // current lap time
@@ -154,6 +154,7 @@
 					console.log("Money")
 					score += 1;
 					playerSegment.coin = null;
+					currentLapTime -= 1.5;
 					var currentLapTimeSpan = document.getElementById('current_lap_time');
 					changeBackgroundColor(currentLapTimeSpan, 'green', 1000);
 				}
@@ -189,7 +190,7 @@
 				car = playerSegment.cars[n];
 				carW = car.sprite.w * SPRITES.SCALE;
 				if (speed > car.speed) {
-					if (Util.overlap(playerX, playerW, car.offset, carW, 0.8)) {
+					if (Util.overlap(playerX, playerW, car.offset, carW, 0.7)) {
 						speed = car.speed * (car.speed / speed);
 						position = Util.increase(car.z, -playerZ, trackLength);
 						break;
@@ -678,7 +679,7 @@
 
 			for (var n = 0; n < totalNitros; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				z = getValidZ(nitros, 50, 150, nitroSeparation)
+				z = getValidZ(nitros, 50, 200, nitroSeparation)
 				nitro = { offset: offset, z: z, source: SPRITES.NITRO};
 				segment = findSegment(nitro.z);
 				segment.nitro = nitro;
@@ -781,6 +782,7 @@
 		  const mute = Dom.get('mute');
 		  const hud = Dom.get('hud');
 		  const gamepad = Dom.get('gamepad');
+			const fast_lap_time = Dom.get('fast_lap_time');
 		  const rightButtons = document.querySelector('.right-buttons');
 		  const leftButtons = document.querySelector('.left-buttons');
 
@@ -790,19 +792,20 @@
 			
 		    if (window.innerHeight > window.innerWidth) {
 		      // Portrait mode adjustments
-		      setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons);
+		      setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
 		    } else {
 		      // Landscape mode adjustments
-		      setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons);
+		      setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
 		    }
 		  } else {
 		    // Desktop adjustments
-		    setStylesForDesktop(racer, mute, hud);
+		    setStylesForDesktop(racer, mute, hud, fast_lap_time);
 		  }
 		}
 
-		function setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons) {
-		  hud.style.fontSize = '1.5em';
+		function setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time) {
+			fast_lap_time.style.width = '10em'
+		  hud.style.fontSize = '1.em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '0%';
 		  racer.style.marginLeft = '0%';
@@ -817,8 +820,9 @@
 		  leftButtons.style.marginTop = '90%';
 		  leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
-
-		function setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons) {
+		
+		function setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time) {
+			fast_lap_time.style.width = '10em'
 		  hud.style.fontSize = '1.5em';
 		  racer.style.transform = 'scale(0.6)';
 		  racer.style.marginTop = '-15%';
@@ -832,10 +836,12 @@
 		  rightButtons.style.marginTop = '10%';
 		  leftButtons.style.marginLeft = '1%';
 		  leftButtons.style.marginTop = '25%';
+			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
-		function setStylesForDesktop(racer, mute, hud) {
-		  hud.style.fontSize = '1.1em';
+		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
+			fast_lap_time.style.width = '12em'
+		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '2%';
 		  racer.style.marginLeft = '27em';

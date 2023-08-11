@@ -77,7 +77,6 @@ body {
 }
 #hud #fast_lap_time {
   display: block;
-  width: 12em;
   margin: 0 auto;
   text-align: center;
   transition-property: background-color;
