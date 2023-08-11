@@ -101,11 +101,9 @@ body {
 /******************/
 
 #gamepad {
-  margin-left: 0; /* Adjust as needed */
-  width: 100%; /* Adjust as needed */
+  margin-left: 0;
   height: 300px;
   position: absolute;
-  justify-content: space-between; /* Spread items evenly */
   font-size: 4em;
 }
 
@@ -134,17 +132,5 @@ body {
 }
 
 .gamepad-button span {
-    display: inline-block;
-}
-
-.right-buttons {
-  position: relative;
-  margin-left: 94%;
-  margin-top: 10%;
-}
-
-.left-buttons {
-  position: inherit;
-  margin-left: 1%;
-  margin-top: 25%;
+  display: inline-block;
 }

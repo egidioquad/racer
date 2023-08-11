@@ -103,8 +103,6 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
 		Game.loadImages(options.images, function (images) {
 
 			options.scaleRacer();
-			
-			document.addEventListener("DOMContentLoaded", options.scaleRacer);
 
 			options.ready(images); // tell caller to initialize itself because images are loaded and we're ready to rumble
 

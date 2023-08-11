@@ -762,45 +762,87 @@
 				resetRoad(); // only rebuild road when necessary
 		}
 
-		function scaleRacer() {
-			const racer = Dom.get('racer');
-			const mute = Dom.get('mute');
-			const hud = Dom.get('hud');
-			const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints;
-		
-  		if (isMobile) {
-				reset({ width: 640, height: 480 })
-				createGamepadIfNeeded();
-				hud.style.fontSize = '1.5em';
-				racer.style.transform = 'scale(0.6)';
-				racer.style.marginTop = '-15%';
-				racer.style.marginLeft = '9%'; 
-				mute.style.marginLeft = '95.5%';
-				mute.style.marginTop = '1%';
-				mute.style.transform = 'scale(1.5)';
-  		} else {
-				hud.style.fontSize = '1.1em';
-				racer.style.transform = 'scale(1)';
-  		  racer.style.marginTop = '2%'; 
-  		  racer.style.marginLeft = '27em'; 
-				mute.style.marginLeft = '92.5em';
-				mute.style.marginTop = '2.3%';
-				mute.style.transform = 'scale(2)';
+		function updateFOV(fov) {
+			cameraDepth = 1 / Math.tan((fov/2) * Math.PI/180);
+			playerZ = (cameraHeight * cameraDepth);
+		}
+
+		function triggerTurbo() {
+			if (!turboTriggered) {
+				turboCurrentFov = fieldOfView;
+				turboTimeDone = 0.0;
+				turboTriggered = true;
 			}
 		}
 
-		function updateFOV(fov) {
-      cameraDepth = 1 / Math.tan((fov/2) * Math.PI/180);
-      playerZ = (cameraHeight * cameraDepth);
-    }
+		function scaleRacer() {
+		  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints;
+		  const racer = Dom.get('racer');
+		  const mute = Dom.get('mute');
+		  const hud = Dom.get('hud');
+		  const gamepad = Dom.get('gamepad');
+		  const rightButtons = document.querySelector('.right-buttons');
+		  const leftButtons = document.querySelector('.left-buttons');
 
-		function triggerTurbo() {
-      if (!turboTriggered) {
-        turboCurrentFov = fieldOfView;
-        turboTimeDone = 0.0;
-        turboTriggered = true;
-      }
-    }
+		  if (isMobile) {
+		    reset({ width: 640, height: 480 });
+		    createGamepadIfNeeded();
+			
+		    if (window.innerHeight > window.innerWidth) {
+		      // Portrait mode adjustments
+		      setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons);
+		    } else {
+		      // Landscape mode adjustments
+		      setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons);
+		    }
+		  } else {
+		    // Desktop adjustments
+		    setStylesForDesktop(racer, mute, hud);
+		  }
+		}
+
+		function setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons) {
+		  hud.style.fontSize = '1.5em';
+		  racer.style.transform = 'scale(1)';
+		  racer.style.marginTop = '0%';
+		  racer.style.marginLeft = '0%';
+		  mute.style.marginLeft = '2%';
+		  mute.style.marginTop = '82.5%';
+		  mute.style.transform = 'scale(2.5)';
+		  gamepad.style.transform = 'scale(2)';
+		  gamepad.style.width = '40%';
+		  rightButtons.style.marginLeft = '115%';
+		  rightButtons.style.marginTop = '20%';
+		  leftButtons.style.marginLeft = '30%';
+		  leftButtons.style.marginTop = '90%';
+		  leftButtons.style.position = rightButtons.style.position = 'absolute';
+		}
+
+		function setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons) {
+		  hud.style.fontSize = '1.5em';
+		  racer.style.transform = 'scale(0.6)';
+		  racer.style.marginTop = '-15%';
+		  racer.style.marginLeft = '9%';
+		  mute.style.marginLeft = '95.5%';
+		  mute.style.marginTop = '1%';
+		  mute.style.transform = 'scale(1.5)';
+		  gamepad.style.transform = 'scale(1)';
+		  gamepad.style.width = '100%';
+		  rightButtons.style.marginLeft = '94%';
+		  rightButtons.style.marginTop = '10%';
+		  leftButtons.style.marginLeft = '1%';
+		  leftButtons.style.marginTop = '25%';
+		}
+
+		function setStylesForDesktop(racer, mute, hud) {
+		  hud.style.fontSize = '1.1em';
+		  racer.style.transform = 'scale(1)';
+		  racer.style.marginTop = '2%';
+		  racer.style.marginLeft = '27em';
+		  mute.style.marginLeft = '92.5em';
+		  mute.style.marginTop = '2.3%';
+		  mute.style.transform = 'scale(2)';
+		}
 
 		function createGamepadIfNeeded() {
 		  const existingGamepad = Dom.get('gamepad');
@@ -822,6 +864,10 @@
 		    document.body.insertAdjacentHTML('beforeend', gamepadHTML);
 		  }
 		}
+
+		document.addEventListener("DOMContentLoaded", scaleRacer);
+		window.addEventListener("resize", scaleRacer);
+
 
 		//=========================================================================
 		// API calls (Coming soon...)
