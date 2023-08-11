@@ -247,11 +247,11 @@
                 );
 
                 if (position > playerZ) {
-                    /* if (!firstLapStarted) {
-                                startGameAPI();
-                                console.log("first lap starts now");
-                                firstLapStarted = true;
-                            }*/
+                    if (!firstLapStarted) {
+                        startGameAPI();
+                        console.log("first lap starts now");
+                        firstLapStarted = true;
+                    }
                     if (currentLapTime && startPosition < playerZ) {
                         lastLapTime = currentLapTime;
                         currentLapTime = 0;
@@ -266,8 +266,10 @@
                             updateHud("fast_lap_time", formatTime(lastLapTime));
                             Dom.addClassName("fast_lap_time", "fastest");
                             Dom.addClassName("last_lap_time", "fastest");
-                            const sonic = localStorage.getItem("fast_lap_time");
-                            //endGameAPI(sonic);
+                            const sonic = Util.toFloat(
+                                Dom.storage.fast_lap_time
+                            );
+                            endGameAPI(sonic);
                             console.log(sonic);
                         } else {
                             Dom.removeClassName("fast_lap_time", "fastest");
@@ -275,6 +277,7 @@
                         }
                         updateHud("last_lap_time", formatTime(lastLapTime));
                         Dom.show("last_lap_time");
+                        startGameAPI();
                     } else {
                         currentLapTime += dt;
                     }
@@ -1066,21 +1069,24 @@
 
             function startGameAPI() {
                 const data = {
-                    auth_token: localStorage.getItem(auth_token),
+                    auth_token: localStorage.getItem("auth_token"),
                 };
                 sha256_2 = fetch(
-                    "http://localhost:54321/functions/v1/game_token",
+                    "https://pvrgwmyaxynklimiusly.functions.supabase.co/game_token",
                     {
                         method: "POST",
                         headers: {
                             Authorization:
-                                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+                                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify(data),
                     }
                 )
                     .then((response) => {
+                        if (response.status != 200)
+                            console.error("data sent but handled na merda");
+                        localStorage.setItem("game_token", sha256_2);
                         console.log("game:token posted up");
                         if (response.ok) {
                             console.log("Data sent successfully!");
@@ -1094,24 +1100,26 @@
                     .catch((error) => {
                         console.error("Network error:", error);
                     });
-                localStorage.setItem("game_token", sha256_2);
             }
 
             function endGameAPI(lap_time) {
                 const data = {
-                    game_token: localStorage.getItem(game_token),
+                    game_token: localStorage.getItem("game_token"),
                     lap_time: currentLapTime,
-                    btcAddress: document.getElementById("inputAddress").value,
+                    btcAddress: localStorage.getItem("btcAddress"),
                 };
-                fetch("http://localhost:54321/functions/v1/end_game", {
-                    method: "POST",
-                    headers: {
-                        Authorization:
-                            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                })
+                fetch(
+                    "https://pvrgwmyaxynklimiusly.functions.supabase.co/end_game",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization:
+                                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    }
+                )
                     .then((response) => {
                         console.log("sent verification request");
                         if (response.ok) {

@@ -1,24 +1,39 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+// import { corsHeaders } from "../_shared/cors.ts";
 
 console.log("game_token function lets go!");
 
-const supabaseUrl = "https://pvrgwmyaxynklimiusly.supabase.co";
-const supabaseKey =
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
-
-const headers = {
-    Authorization: supabaseKey,
-    "Content-Type": "application/json",
-    ...corsHeaders,
+export const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers":
+        "authorization, x-client-info, apikey, content-type, status",
+    "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS",
 };
 
-serve((req) => {
+const supabaseUrl = "https://pvrgwmyaxynklimiusly.supabase.co";
+
+serve(async (req) => {
+    // console.log("cors request");
+    console.log(req);
     if (req.method === "OPTIONS") {
         // Handle CORS Preflight request
-        return handleCorsPreflight();
-    } else {
-        return handler(req);
+        return new Response("ok", { headers: corsHeaders });
+    }
+    try {
+        const { body, status } = await handler(req);
+        const data = { auth_token: body, status: status };
+        if (data.status === 500)
+            return new Response(Error.toString(), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        return new Response(JSON.stringify(data), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.log("capping");
+        return new Response(error.toString(), { status: 500 });
     }
 });
 
@@ -31,8 +46,6 @@ export default async function handler(request: Request) {
     if (typeof auth_token !== "string") {
         return new Response("Invalid input", { status: 400 });
     }
-
-    const requestUrl = `${supabaseUrl}/rest/v1/game_session?auth_token=eq.${auth_token}`;
 
     const jsonObject = {
         auth_token,
@@ -51,17 +64,24 @@ export default async function handler(request: Request) {
         .join("");
 
     const updatedJsonObject = {
-        auth_token,
-        timestamp,
-        salt,
-        game_token,
+        auth_token: auth_token,
+        timestamp: new Date(timestamp).toISOString(),
+        salt: salt,
+        game_token: game_token,
     };
-    if ((await checkToken(auth_token)) === false)
+
+    const requestUrl = `${supabaseUrl}/rest/v1/game_session?auth_token=eq.${auth_token}`;
+    const tokenExists = await checkToken(auth_token);
+
+    if (tokenExists === false)
         try {
             const insertUrl = `${supabaseUrl}/rest/v1/game_session`;
             const insertResponse = await fetch(insertUrl, {
                 method: "POST",
-                headers: headers,
+                headers: {
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify(updatedJsonObject),
             });
             console.log("posted up");
@@ -72,11 +92,14 @@ export default async function handler(request: Request) {
             console.error("Error inserting the data into the database");
             return new Response("Internal Server Error", { status: 500 });
         }
-    else {
+    else if (tokenExists === true) {
         try {
             const updateResponse = await fetch(requestUrl, {
                 method: "PUT",
-                headers: headers,
+                headers: {
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify(updatedJsonObject),
             });
             if (!updateResponse.ok) {
@@ -86,6 +109,8 @@ export default async function handler(request: Request) {
             console.error("Error updating the data in the database");
             return new Response("Internal Server Error", { status: 500 });
         }
+    } else {
+        return new Response("Address could not be checked", { status: 500 });
     }
 
     return new Response(game_token, { status: 200 });
@@ -93,26 +118,28 @@ export default async function handler(request: Request) {
 
 async function checkToken(auth_token: string) {
     try {
-        const supabaseUrl = "https://pvrgwmyaxynklimiusly.supabase.co";
-        const supabaseKey =
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0";
         const requestUrl = `${supabaseUrl}/rest/v1/game_session?auth_token=eq.${auth_token}`;
 
-        const headers = {
-            Authorization: supabaseKey,
-            ...corsHeaders,
-        };
+        const response = await fetch(requestUrl, {
+            headers: {
+                apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                "Content-Type": "application/json",
+            },
+        });
 
-        const response = await fetch(requestUrl, { headers });
-
-        if (!response.ok) {
-            console.log("cant GET token");
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            if (data.length === 0) {
+                return false; // Address not found
+            }
+            return true; // Address found
+        } else {
             throw new Error("Error querying the database");
         }
-        return true;
-    } catch (err) {
-        console.error(err);
-        return false;
+    } catch (Error) {
+        console.error(Error);
+        return null; // Request failed
     }
 }
 
@@ -124,14 +151,4 @@ function generateSALT() {
         .map((byte) => byte.toString(16).padStart(2, "0"))
         .join("");
     return salt;
-}
-
-function handleCorsPreflight() {
-    // Use the exported corsHeaders object directly
-    const headers = new Headers(corsHeaders);
-    headers.set("Allow", "POST, GET, PUT, OPTIONS");
-    return new Response(null, {
-        status: 204, // No content for preflight request
-        headers: headers,
-    });
 }

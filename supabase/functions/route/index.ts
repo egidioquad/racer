@@ -25,16 +25,16 @@ serve(async (req) => {
         // Handle CORS Preflight request
         return new Response("ok", { headers: corsHeaders });
     }
-    console.log("before try");
     try {
         const { body, status } = await handler(req);
-        const data = { sha256Hash: body, status: status };
+        const data = { auth_token: body, status: status };
         if (data.status === 500)
             return new Response(Error.toString(), {
                 status: 500,
                 headers: corsHeaders,
             });
         return new Response(JSON.stringify(data), {
+            status: 200,
             headers: corsHeaders,
         });
     } catch (error) {
@@ -48,7 +48,6 @@ export default async function handler(request: Request) {
     const inputAddress = requestBody.inputAddress;
     const timestamp = Date.now();
     const salt = generateSALT();
-    console.log(inputAddress);
 
     if (typeof inputAddress !== "string") {
         return new Response("Invalid input", { status: 400 });
@@ -56,7 +55,7 @@ export default async function handler(request: Request) {
 
     const jsonObject = {
         inputAddress,
-        timestamp: new Date(timestamp).toISOString(),
+        timestamp,
         salt,
     };
     const jsonString = JSON.stringify(jsonObject);
@@ -66,33 +65,28 @@ export default async function handler(request: Request) {
     const data = encoder.encode(jsonString);
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const sha256Hash = hashArray
+    const auth_token = hashArray
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
     const updatedJsonObject = {
-        inputAddress,
+        inputAddress: inputAddress,
         timestamp: new Date(timestamp).toISOString(),
-        salt,
-        sha256Hash,
+        salt: salt,
+        auth_token: auth_token,
     };
 
     const addressExist = await checkAddress(inputAddress);
     if (addressExist === true) {
         try {
             const requestUrl = `${supabaseUrl}/rest/v1/game_auth?inputAddress=eq.${inputAddress}`;
-            const jsonThing = {
-                timestamp: new Date(timestamp).toISOString(),
-                salt,
-                sha256Hash,
-            };
             const updateResponse = await fetch(requestUrl, {
                 method: "PUT",
                 headers: {
                     apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(jsonThing),
+                body: JSON.stringify(updatedJsonObject),
             });
             console.log(updateResponse);
             if (!updateResponse.ok) {
@@ -114,7 +108,9 @@ export default async function handler(request: Request) {
                 },
                 body: JSON.stringify(updatedJsonObject),
             });
-            console.log("posted up");
+            console.log("posted up:");
+            console.log(insertResponse);
+
             if (!insertResponse.ok) {
                 console.error("not posting shit");
             }
@@ -127,7 +123,7 @@ export default async function handler(request: Request) {
         return new Response("Address could not be checked", { status: 500 });
     }
 
-    return new Response(sha256Hash, { status: 200 });
+    return new Response(auth_token, { status: 200 });
 }
 
 async function checkAddress(inputAddress: string) {

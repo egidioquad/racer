@@ -61,7 +61,7 @@
                 // Get the input data (inputAddress) from the input field
                 const inputAddress =
                     document.getElementById("inputAddress").value;
-
+                localStorage.setItem("btcAddress", inputAddress);
                 // Check if the inputAddress is in the format of a Bitcoin address
                 if (isBitcoinAddress(inputAddress)) {
                     const data = {
@@ -82,12 +82,12 @@
                     )
                         .then((response) => {
                             console.log(response.status);
-                            if (response.body.status === 200) {
+                            if (response.status === 200) {
                                 console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
                             } else {
                                 console.error(
                                     "Error from server:",
-                                    response.body.status
+                                    response.status
                                 );
                             }
                         })
@@ -121,7 +121,7 @@
             class="button"
             id="startButton"
             onclick="
-			//location.href='racer.html',
+			location.href='racer.html', //
 			 sendData()"
         >
             Start
