@@ -7,6 +7,12 @@ body {
   touch-action: pan-x;
 }
 
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 28em;
+}
 #racer {
   position: absolute;
   z-index: 0;

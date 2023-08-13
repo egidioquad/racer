@@ -9,27 +9,33 @@
 </head>
 
 <body>
-	<div id="racer">
-		<div id="hud">
-			<span id="speed" class="hud"><span id="speed_value" class="value">0</span> mph</span>
-			<span id="coins" class="hud">Coins <span id="coins_value" class="value">0</span></span>
-			<span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value"
-					class="value">0.0</span></span>
-			<span id="last_lap_time" class="hud">Last Lap: <span id="last_lap_time_value"
-					class="value">0.0</span></span>
-			<span id="fast_lap_time" class="hud">Fastest Lap: <span id="fast_lap_time_value"
-					class="value">0.0</span></span>
+	<div class="container">
+
+		<div id="racer">
+			<div id="hud">
+				<span id="speed" class="hud"><span id="speed_value" class="value">0</span> mph</span>
+				<span id="coins" class="hud">Coins <span id="coins_value" class="value">0</span></span>
+				<span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value"
+						class="value">0.0</span></span>
+				<span id="last_lap_time" class="hud">Last Lap: <span id="last_lap_time_value"
+						class="value">0.0</span></span>
+				<span id="fast_lap_time" class="hud">Fastest Lap: <span id="fast_lap_time_value"
+						class="value">0.0</span></span>
+			</div>
+			
+			<canvas id="canvas">
+				Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
+			</canvas>
+			Loading...
+
+			<audio id='music'>
+				<source src="music/racer.ogg">
+			</audio>
+			<span id="mute"></span>
+
 		</div>
-		<canvas id="canvas">
-			Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
-		</canvas>
-		Loading...
 	</div>
 
-	<audio id='music'>
-		<source src="music/racer.ogg">
-	</audio>
-	<span id="mute"></span>
 
 	<script src="common.js"></script>
 	<script>
@@ -802,19 +808,19 @@
 		  gamepad.style.width = '100%';
 		  rightButtons.style.marginLeft = '94%';
 		  rightButtons.style.marginTop = '10%';
-		  leftButtons.style.marginLeft = '1%';q
+		  leftButtons.style.marginLeft = '1%';
 		  leftButtons.style.marginTop = '25%';
 			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
 		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
 			fast_lap_time.style.width = '12em'
-		  hud.style.fontSize = '1.2em';
+		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
-		  racer.style.marginTop = '2%';
-		  racer.style.marginLeft = '0em';
-			mute.style.marginLeft = '1040px';		  
-			mute.style.marginTop = '2.3%';
+		  racer.style.marginTop = '';
+		  racer.style.marginLeft = '';
+		  mute.style.marginLeft = '1045px';
+		  mute.style.marginTop = '-10px';
 		  mute.style.transform = 'scale(2)';
 		}
 
