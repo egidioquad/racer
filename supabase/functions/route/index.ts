@@ -26,16 +26,10 @@ serve(async (req) => {
         return new Response("ok", { headers: corsHeaders });
     }
     try {
-        const { body, status } = await handler(req);
-        const data = { auth_token: body, status: status };
-        if (data.status === 500)
-            return new Response(Error.toString(), {
-                status: 500,
-                headers: corsHeaders,
-            });
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: corsHeaders,
+        const handleResponse = await handler(req);
+        return new Response(handleResponse.body, {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: handleResponse.status,
         });
     } catch (error) {
         console.log("capping");
@@ -108,13 +102,11 @@ export default async function handler(request: Request) {
                 },
                 body: JSON.stringify(updatedJsonObject),
             });
-            console.log("posted up:");
-            console.log(insertResponse);
+            console.log("postREsponse: ", insertResponse);
 
             if (!insertResponse.ok) {
                 console.error("not posting shit");
             }
-            console.log("yeah posted up FR");
         } catch {
             console.error("Error inserting the data into the database");
             return new Response("Internal Server Error", { status: 500 });

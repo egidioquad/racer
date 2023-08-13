@@ -57,7 +57,7 @@
                 return btcAddressRegex.test(input);
             }
 
-            function sendData() {
+            async function sendData() {
                 // Get the input data (inputAddress) from the input field
                 const inputAddress =
                     document.getElementById("inputAddress").value;
@@ -67,8 +67,7 @@
                     const data = {
                         inputAddress: inputAddress,
                     };
-
-                    const sha256 = fetch(
+                    const response = fetch(
                         "https://pvrgwmyaxynklimiusly.functions.supabase.co/route",
                         {
                             method: "POST",
@@ -80,10 +79,10 @@
                             body: JSON.stringify(data),
                         }
                     )
-                        .then((response) => {
+                        .then(async (response) => {
                             console.log(response.status);
                             if (response.status === 200) {
-                                console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
+                                responseBody = await response.text();
                             } else {
                                 console.error(
                                     "Error from server:",
@@ -91,14 +90,34 @@
                                 );
                             }
                         })
+                        .then((response) => {
+                            localStorage.removeItem("auth_token");
+                            const auth_token = responseBody;
+                            localStorage.setItem("auth_token", auth_token); //auth token in local storage
+                            console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
+                            console.log("auth_token logged: \n", auth_token);
+                        })
                         .catch((error) => {
                             console.log("not sending request");
                             console.error("Network error:", error);
                         });
-                    localStorage.setItem("auth_token", sha256); //auth token in local storage
                 } else {
                     console.log("Invalid Bitcoin address format!");
                 }
+            }
+
+            async function handleButtonClick() {
+                await sendData()
+                    .then(() => {
+                        console.log("then");
+                        setTimeout(() => {
+                            location.href = "racer.html";
+                        }, 300); // Adjust the delay as needed
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        // Handle the error as needed
+                    });
             }
         </script>
     </head>
@@ -120,9 +139,8 @@
         <button
             class="button"
             id="startButton"
-            onclick="
-			location.href='racer.html', //
-			 sendData()"
+            onclick="//location.href = 'racer.html',	
+				 handleButtonClick()"
         >
             Start
         </button>

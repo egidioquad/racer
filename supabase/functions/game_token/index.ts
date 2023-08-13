@@ -13,23 +13,16 @@ export const corsHeaders = {
 const supabaseUrl = "https://pvrgwmyaxynklimiusly.supabase.co";
 
 serve(async (req) => {
-    // console.log("cors request");
     console.log(req);
     if (req.method === "OPTIONS") {
         // Handle CORS Preflight request
         return new Response("ok", { headers: corsHeaders });
     }
     try {
-        const { body, status } = await handler(req);
-        const data = { auth_token: body, status: status };
-        if (data.status === 500)
-            return new Response(Error.toString(), {
-                status: 500,
-                headers: corsHeaders,
-            });
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: corsHeaders,
+        const handleResponse = await handler(req);
+        return new Response(handleResponse.body, {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: handleResponse.status,
         });
     } catch (error) {
         console.log("capping");
@@ -84,7 +77,7 @@ export default async function handler(request: Request) {
                 },
                 body: JSON.stringify(updatedJsonObject),
             });
-            console.log("posted up");
+            console.log("POST METHOD", insertResponse);
             if (!insertResponse.ok) {
                 console.error("not posting shit");
             }
@@ -102,6 +95,7 @@ export default async function handler(request: Request) {
                 },
                 body: JSON.stringify(updatedJsonObject),
             });
+            console.log("token exists true", updateResponse);
             if (!updateResponse.ok) {
                 console.error("not putting shit");
             }
@@ -126,7 +120,8 @@ async function checkToken(auth_token: string) {
                 "Content-Type": "application/json",
             },
         });
-
+        console.log("response GET: ", response);
+        //HE DIDNT GET SHIT
         if (response.ok) {
             const data = await response.json();
             console.log(data);

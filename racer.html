@@ -269,8 +269,8 @@
                             const sonic = Util.toFloat(
                                 Dom.storage.fast_lap_time
                             );
-                            endGameAPI(sonic);
-                            console.log(sonic);
+                            //endGameAPI(sonic);
+                            console.log("fast_lap_time --> ", sonic);
                         } else {
                             Dom.removeClassName("fast_lap_time", "fastest");
                             Dom.removeClassName("last_lap_time", "fastest");
@@ -1068,10 +1068,12 @@
             //=========================================================================
 
             function startGameAPI() {
+                auth_token = localStorage.getItem("auth_token");
+                console.log("auth token:", auth_token);
                 const data = {
-                    auth_token: localStorage.getItem("auth_token"),
+                    auth_token: auth_token,
                 };
-                sha256_2 = fetch(
+                const response = fetch(
                     "https://pvrgwmyaxynklimiusly.functions.supabase.co/game_token",
                     {
                         method: "POST",
@@ -1083,19 +1085,21 @@
                         body: JSON.stringify(data),
                     }
                 )
-                    .then((response) => {
-                        if (response.status != 200)
-                            console.error("data sent but handled na merda");
-                        localStorage.setItem("game_token", sha256_2);
-                        console.log("game:token posted up");
+                    .then(async (response) => {
                         if (response.ok) {
                             console.log("Data sent successfully!");
+                            responseBody = await response.text();
                         } else {
                             console.log(
                                 "Error sending data:",
                                 response.statusText
                             );
                         }
+                    })
+                    .then((responseData) => {
+                        const response_token = responseBody;
+                        localStorage.setItem("game_token", response_token);
+                        console.log("Data sent! game_token:", response_token);
                     })
                     .catch((error) => {
                         console.error("Network error:", error);
@@ -1108,6 +1112,7 @@
                     lap_time: currentLapTime,
                     btcAddress: localStorage.getItem("btcAddress"),
                 };
+                console.log("data:", data);
                 fetch(
                     "https://pvrgwmyaxynklimiusly.functions.supabase.co/end_game",
                     {
@@ -1121,7 +1126,7 @@
                     }
                 )
                     .then((response) => {
-                        console.log("sent verification request");
+                        console.log("sent verification request-->", response);
                         if (response.ok) {
                             console.log("Data sent successfully!");
                         } else {
@@ -1137,4 +1142,13 @@
             }
         </script>
     </body>
+
+    <button
+        style="color: rgb(111, 45, 172)"
+        ,
+        onclick="endGameAPI(Util.toFloat(
+		Dom.storage.fast_lap_time))"
+    >
+        endGame
+    </button>
 </html>
