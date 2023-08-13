@@ -756,10 +756,11 @@
 		  var mute = Dom.get('mute');
 		  var hud = Dom.get('hud');
 		  var gamepad = Dom.get('gamepad');
-			var fast_lap_time = Dom.get('fast_lap_time');
+		  var fast_lap_time = Dom.get('fast_lap_time');
 		  var rightButtons = document.querySelector('.right-buttons');
 		  var leftButtons = document.querySelector('.left-buttons');
-
+		  var container = document.querySelector('.container'); // Get the container element
+				
 		  if (isMobile) {
 		    reset({ width: 640, height: 480 });
 		    createGamepadIfNeeded();
@@ -771,7 +772,13 @@
 		      // Landscape mode adjustments
 		      setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
 		    }
+			
+		    // Disable the container styles for mobile
+		    container.classList.remove('container');
 		  } else {
+		    // Enable the container styles for desktop
+		    container.classList.add('container');
+			
 		    // Desktop adjustments
 		    setStylesForDesktop(racer, mute, hud, fast_lap_time);
 		  }
