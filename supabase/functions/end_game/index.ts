@@ -51,15 +51,28 @@ export default async function handler(request: Request) {
         const timeDifferenceInMillis =
             endTimestamp.getTime() - startTimestamp.getTime();
         console.log("end-start =", timeDifferenceInMillis);
-        /* if (end_timestamp - start_timestamp >= 1) {
-            // find a good value by testing
 
-            fraud();
-        } else { >>>> ho cancellato una graffa giu*/
-        try {
-            putScore(btcAddress, fast_lap);
-        } catch {
-            return new Response("Internal Server Error", { status: 500 });
+        //
+        const floatThing = fast_lap * 1000;
+        const fast_lap_milly = parseInt(floatThing.toString());
+        console.log("fast_lap in milly::", fast_lap_milly);
+
+        if (
+            timeDifferenceInMillis - fast_lap >= 3000 ||
+            fast_lap_milly < 90000
+        ) {
+            // find a good value by testing
+            console.log(
+                "fraud activation ! ! 1 ! ! ->>",
+                timeDifferenceInMillis - fast_lap
+            );
+            // fraud();
+        } else {
+            try {
+                handleScore(btcAddress, fast_lap);
+            } catch {
+                return new Response("Internal Server Error", { status: 500 });
+            }
         }
     } else {
         return new Response("Timestamp could not be found. Database err:", {
@@ -99,7 +112,10 @@ async function getTimestamp(game_token: string) {
     }
 }
 
-function fraud() {}
+function fraud() {
+    //GET score from score table, set cheater bool to: true
+    //cheaters get their future scores 10 seconds more than their now score
+}
 
 async function postScore(btcAddress: string, fast_lap: number) {
     const jsonObject = {
@@ -128,7 +144,7 @@ async function postScore(btcAddress: string, fast_lap: number) {
     }
 }
 
-async function putScore(btcAddress: string, newFastLap: number) {
+async function handleScore(btcAddress: string, newFastLap: number) {
     const requestUrl = `${supabaseUrl}/rest/v1/scores?btcAddress=eq.${btcAddress}`;
     try {
         const response = await fetch(requestUrl, {
@@ -141,23 +157,7 @@ async function putScore(btcAddress: string, newFastLap: number) {
         if (response.ok) {
             const data = await response.json();
             if (data.length > 0) {
-                const putResponse = await fetch(requestUrl, {
-                    method: "PUT",
-                    headers: {
-                        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        btcAddress: btcAddress,
-                        fast_lap: newFastLap,
-                    }),
-                });
-
-                if (putResponse.ok) {
-                    console.log("Fast lap updated successfully!");
-                } else {
-                    console.error("Failed to update fast lap:", putResponse);
-                }
+                putScore(btcAddress, newFastLap);
             } else {
                 postScore(btcAddress, newFastLap);
             }
@@ -166,5 +166,26 @@ async function putScore(btcAddress: string, newFastLap: number) {
         }
     } catch (error) {
         console.error("Error checking btcAddress:", error);
+    }
+}
+
+async function putScore(btcAddress: string, newFastLap: number) {
+    const requestUrl = `${supabaseUrl}/rest/v1/scores?btcAddress=eq.${btcAddress}`;
+    const putResponse = await fetch(requestUrl, {
+        method: "PUT",
+        headers: {
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            btcAddress: btcAddress,
+            fast_lap: newFastLap,
+        }),
+    });
+
+    if (putResponse.ok) {
+        console.log("Fast lap updated successfully!");
+    } else {
+        console.error("Failed to update fast lap:", putResponse);
     }
 }
