@@ -409,7 +409,7 @@ var SPRITES = {
 	NITRO: { x: 1380, y: 1170, w: 85, h: 100 },
 	ARCHER: { x: 1205, y: 1080, w: 67, h: 80 },
 	TROLLFACE: { x: 1365, y: 650, w: 105, h: 95 },
-	TROLL: { x: 1350, y: 540, w: 126, h: 110 },
+	TROLL: { x: 1350, y: 540, w: 126, h: 106 },
 	BROWN_DRAGON: { x: 1093, y: 1080, w: 100, h: 80 }
 };
 

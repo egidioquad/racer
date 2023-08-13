@@ -47,9 +47,8 @@
 		var hillOffset = 0;                       // current hill scroll offset
 		var treeOffset = 0;                       // current tree scroll offset
 		var segments = [];                      // array of road segments
-		var cars = [];                      // array of cars on the road
-		var coins = [];											// array of coins on the road
-		var nitros = [];
+		var creatures = [];                      // array of creatures on the road
+		var objects = [];
 		var score = 0;												// current score
 		var canvas = Dom.get('canvas');       // our canvas...
 		var ctx = canvas.getContext('2d'); // ...and its drawing context
@@ -76,7 +75,7 @@
 		var decel = -maxSpeed / 5;             // 'natural' deceleration rate when neither accelerating, nor braking
 		var offRoadDecel = -maxSpeed / 2;             // off road deceleration is somewhere in between
 		var offRoadLimit = maxSpeed / 4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
-		var totalCars = 175;                     // total number of cars on the road
+		var totalCreatures = 200;                     // total number of creatures on the road
 		var totalCoins = 20;											// total number of coins on the road
 		var totalNitros = 3;												// total number of nitros on the road
 		var currentLapTime = 0;                       // current lap time
@@ -87,7 +86,7 @@
 		var turboDuration = 5;                            // duration of turbo in seconds
 		var turboAnimation = 1;                           // duration of animation to do progressive increase/decrease of fov
 		var turboFovIncrement = 1.4;                        // multiplier of fov during turbo
-		var turboMaxSpeed = maxSpeed * 1.3;         // maximum speed under turbo
+		var turboMaxSpeed = maxSpeed * 1.4;         // maximum speed under turbo
 		var turboCentrifugal = centrifugal/2;                         // torque when under turbo (else the player cannot turn in curves)
 		var turboTriggered = false;                         // internal variable - turbo triggered by player?
 		var turboTimeDone = 0.0;                             // internal variable - turbo being consumed, since how much time (allow to do animation and such)
@@ -109,24 +108,18 @@
 		//=========================================================================
 		// UPDATE THE GAME WORLD
 		//=========================================================================
-
-		function changeBackgroundColor(element, color, duration) {
-		  element.style.backgroundColor = color;
-		  setTimeout(function() {
-		    element.style.backgroundColor = '';
-		  }, duration);
-		}
 				
 		function update(dt) {
 			
-			var n, i, car, carW, sprite, spriteW, coin, coinW, nitro, nitroW;
+			var n, i, creature, creatureW, sprite, spriteW, object, objectW, overlap;
 			var playerSegment = findSegment(position + playerZ);
 			var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
 			var speedPercent = speed / maxSpeed;
-			var dx = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
+			var dx = dt * 2.15 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
 			var startPosition = position;
+			var segmentObject = playerSegment.object;
 			
-			updateCars(dt, playerSegment, playerW);
+			updateCreatures(dt, playerSegment, playerW);
 			
 			position = Util.increase(position, dt * speed, trackLength);
 			
@@ -142,33 +135,23 @@
       }
 
 			if (keyFaster)
-			speed = Util.accelerate(speed, accel, dt);
+				speed = Util.accelerate(speed, accel, dt);
 			else if (keySlower)
 				speed = Util.accelerate(speed, breaking, dt);
 			else
-			speed = Util.accelerate(speed, decel, dt);
+				speed = Util.accelerate(speed, decel, dt);
 
-			if (playerSegment.object) {
-				if (playerSegment.object.source == SPRITES.COIN) {
-					coin = playerSegment.object;
-					coinW = SPRITES.COIN.w * SPRITES.SCALE;
-					if (Util.overlap(playerX, playerW, coin.offset, coinW, 0.9)) {
-						console.log("Money");
-						score += 1;
-						playerSegment.object = null;
-						currentLapTime -= 1.5;
-						var currentLapTimeSpan = document.getElementById('current_lap_time');
-						changeBackgroundColor(currentLapTimeSpan, 'green', 1000);
-					}
-				} else if (playerSegment.object.source == SPRITES.NITRO) {
-					nitro = playerSegment.object;
-					nitroW = SPRITES.NITRO.w * SPRITES.SCALE;
-					if (Util.overlap(playerX, playerW, nitro.offset, nitroW, 0.9)) {
-						console.log("GO CRAZYYYY");
-						triggerTurbo();
-						playerSegment.object = null;
-					}
-				}
+			if (segmentObject) {
+			  objectW = segmentObject.source.w * SPRITES.SCALE;
+			  overlap = Util.overlap(playerX, playerW, segmentObject.offset, objectW, 0.9);
+		
+			  if (overlap) {
+			    if (segmentObject.source == SPRITES.COIN) 
+				    collectCoin();
+			    else if (segmentObject.source == SPRITES.NITRO) 
+			      triggerTurbo();
+			    playerSegment.object = null;
+			  }
 			}
 			
 			if ((playerX < -1) || (playerX > 1)) {
@@ -186,56 +169,47 @@
 				}
 			}
 
-			for (n = 0; n < playerSegment.cars.length; n++) {
-				car = playerSegment.cars[n];
-				carW = car.sprite.w * SPRITES.SCALE;
-				if (speed > car.speed) {
-					if (Util.overlap(playerX, playerW, car.offset, carW, 0.7)) {
-						speed = car.speed * (car.speed / speed);
-						position = Util.increase(car.z, -playerZ, trackLength);
+			for (n = 0; n < playerSegment.creatures.length; n++) {
+				creature = playerSegment.creatures[n];
+				creatureW = creature.sprite.w * SPRITES.SCALE;
+				if (speed > creature.speed) {
+					if (Util.overlap(playerX, playerW, creature.offset, creatureW, 0.7)) {
+						speed = creature.speed * (creature.speed / speed);
+						position = Util.increase(creature.z, -playerZ, trackLength);
 						break;
 					}
 				}
 			}
 
-			playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
-
+			playerX = Util.limit(playerX, -3, 3);    
 
 			if (!turboTriggered) {
-        // Normal speed limit, no turbo
-        speed   = Util.limit(speed, 0, maxSpeed); // or exceed maxSpeed
+        speed   = Util.limit(speed, 0, maxSpeed);
       } else {
-        // Turbo management
-        speed   = Util.limit(speed, 0, turboMaxSpeed); // do not exceed turbo max speed
-        accel = turboMaxSpeed / 3; // increase acceleration
-        turboTimeDone += dt; // increase the current consumed time of turbo
+        speed   = Util.limit(speed, 0, turboMaxSpeed); 
+        accel = turboMaxSpeed / 3; 
+        turboTimeDone += dt; 
         if (turboTimeDone < turboDuration) {
-            // if turbo time is left, we can continue
-            if (turboTimeDone < turboAnimation) {
-                // turbo initialization animation, increase fov
-                turboFov = fieldOfView * turboFovIncrement;
-                if (turboCurrentFov < turboFov) {
-                    turboCurrentFov += (turboFov - fieldOfView) * (dt/turboAnimation);
-                    updateFOV(turboCurrentFov);
-                }
-            } else if (turboDuration <= (turboTimeDone + turboAnimation)) {
-                // turbo end animation, decrease fov
-                if (turboCurrentFov > fieldOfView) {
-                    turboCurrentFov -= (turboFov - fieldOfView) * (dt/turboAnimation);
-                    updateFOV(turboCurrentFov);
-                }
-                if (speed > maxSpeed) {
-                    // also decrease speed gradually
-                    speed -= (turboMaxSpeed - maxSpeed) * (dt/turboAnimation)*3; // *3 is magic value to overcome the fact that the car will still get acceleration next frame and is still capped at turboMaxSpeed (see Util.limit above). By multiplying by 2 we cancel the next increase.
-                }
+          if (turboTimeDone < turboAnimation) {
+            turboFov = fieldOfView * turboFovIncrement;
+            if (turboCurrentFov < turboFov) {
+              turboCurrentFov += (turboFov - fieldOfView) * (dt/turboAnimation);
+              updateFOV(turboCurrentFov);
             }
+          } else if (turboDuration <= (turboTimeDone + turboAnimation)) {
+          	if (turboCurrentFov > fieldOfView) {
+          	  turboCurrentFov -= (turboFov - fieldOfView) * (dt/turboAnimation);
+          	  updateFOV(turboCurrentFov);
+          	}
+          	if (speed > maxSpeed) {
+          	  speed -= (turboMaxSpeed - maxSpeed) * (dt/turboAnimation)*3;
+          	}
+          }
         } else {
-            // no turbo time left, disable the turbo mode
-            turboTriggered = false;
-            updateFOV(fieldOfView); // reinit fieldOfView
+          turboTriggered = false;
+          updateFOV(fieldOfView);
         }
       }
-
 
 			skyOffset = Util.increase(skyOffset, skySpeed * playerSegment.curve * (position - startPosition) / segmentLength, 1);
 			hillOffset = Util.increase(hillOffset, hillSpeed * playerSegment.curve * (position - startPosition) / segmentLength, 1);
@@ -245,10 +219,7 @@
 				if (currentLapTime && (startPosition < playerZ)) {
 					lastLapTime = currentLapTime;
 					currentLapTime = 0;
-					for (i = 0; i < segments.length; i++)
-						segments[i].object = null;
-					resetCoins();
-					resetNitros();
+					resetObjects();
 					if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
 						Dom.storage.fast_lap_time = lastLapTime;
 						updateHud('fast_lap_time', formatTime(lastLapTime));
@@ -273,66 +244,91 @@
 		
 		//-------------------------------------------------------------------------
 		
-		function updateCars(dt, playerSegment, playerW) {
-			var n, car, oldSegment, newSegment;
-			for (n = 0; n < cars.length; n++) {
-				car = cars[n];
-				oldSegment = findSegment(car.z);
-				car.offset = car.offset + updateCarOffset(car, oldSegment, playerSegment, playerW);
-				car.z = Util.increase(car.z, dt * car.speed, trackLength);
-				car.percent = Util.percentRemaining(car.z, segmentLength); // useful for interpolation during rendering phase
-				newSegment = findSegment(car.z);
+		function updateCreatures(dt, playerSegment, playerW) {
+			var n, creature, oldSegment, newSegment;
+			for (n = 0; n < creatures.length; n++) {
+				creature = creatures[n];
+				oldSegment = findSegment(creature.z);
+				creature.offset = creature.offset + updateCreatureOffset(creature, oldSegment, playerSegment, playerW);
+				creature.z = Util.increase(creature.z, dt * creature.speed, trackLength);
+				creature.percent = Util.percentRemaining(creature.z, segmentLength); // useful for interpolation during rendering phase
+				newSegment = findSegment(creature.z);
 				if (oldSegment != newSegment) {
-					index = oldSegment.cars.indexOf(car);
-					oldSegment.cars.splice(index, 1);
-					newSegment.cars.push(car);
+					index = oldSegment.creatures.indexOf(creature);
+					oldSegment.creatures.splice(index, 1);
+					newSegment.creatures.push(creature);
 				}
 			}
 		}
 		
-		function updateCarOffset(car, carSegment, playerSegment, playerW) {
+		function updateCreatureOffset(creature, creatureSegment, playerSegment, playerW) {
 			
-			var i, j, dir, segment, otherCar, otherCarW, lookahead = 20, carW = car.sprite.w * SPRITES.SCALE;
+			var i, j, dir, segment, otherCreature, otherCreatureW, lookahead = 23, creatureW = creature.sprite.w * SPRITES.SCALE;
 			
-			// optimization, dont bother steering around other cars when 'out of sight' of the player
-			if ((carSegment.index - playerSegment.index) > drawDistance)
+			// optimization, dont bother steering around other creatures when 'out of sight' of the player
+			if ((creatureSegment.index - playerSegment.index) > drawDistance)
 				return 0;
 
 				for (i = 1; i < lookahead; i++) {
-				segment = segments[(carSegment.index + i) % segments.length];
+				segment = segments[(creatureSegment.index + i) % segments.length];
 				
-				if ((segment === playerSegment) && (car.speed > speed) && (Util.overlap(playerX, playerW, car.offset, carW, 1.2))) {
+				if ((segment === playerSegment) && (creature.speed > speed) && (Util.overlap(playerX, playerW, creature.offset, creatureW, 1.2))) {
 					if (playerX > 0.5)
 						dir = -1;
 						else if (playerX < -0.5)
 						dir = 1;
 						else
-						dir = (car.offset > playerX) ? 1 : -1;
-						return dir * 1 / i * (car.speed - speed) / maxSpeed; // the closer the cars (smaller i) and the greated the speed ratio, the larger the offset
+						dir = (creature.offset > playerX) ? 1 : -1;
+						return dir * 1 / i * (creature.speed - speed) / maxSpeed; // the closer the creatures (smaller i) and the greated the speed ratio, the larger the offset
 				}
 
-				for (j = 0; j < segment.cars.length; j++) {
-					otherCar = segment.cars[j];
-					otherCarW = otherCar.sprite.w * SPRITES.SCALE;
-					if ((car.speed > otherCar.speed) && Util.overlap(car.offset, carW, otherCar.offset, otherCarW, 1.2)) {
-						if (otherCar.offset > 0.5)
+				for (j = 0; j < segment.creatures.length; j++) {
+					otherCreature = segment.creatures[j];
+					otherCreatureW = otherCreature.sprite.w * SPRITES.SCALE;
+					if ((creature.speed > otherCreature.speed) && Util.overlap(creature.offset, creatureW, otherCreature.offset, otherCreatureW, 1.2)) {
+						if (otherCreature.offset > 0.5)
 							dir = -1;
-						else if (otherCar.offset < -0.5)
+						else if (otherCreature.offset < -0.5)
 						dir = 1;
 						else
-							dir = (car.offset > otherCar.offset) ? 1 : -1;
-						return dir * 1 / i * (car.speed - otherCar.speed) / maxSpeed;
+							dir = (creature.offset > otherCreature.offset) ? 1 : -1;
+						return dir * 1 / i * (creature.speed - otherCreature.speed) / maxSpeed;
 					}
 				}
 			}
 
-			// if no cars ahead, but I have somehow ended up off road, then steer back on
-			if (car.offset < -0.9)
+			// if no creatures ahead, but I have somehow ended up off road, then steer back on
+			if (creature.offset < -0.85)
 				return 0.1;
-			else if (car.offset > 0.9)
+			else if (creature.offset > 0.85)
 				return -0.1;
 			else
 				return 0;
+		}
+
+		//-------------------------------------------------------------------------
+
+		function collectCoin() {
+			Dom.get('current_lap_time').style.backgroundColor = 'green';
+		  setTimeout(function() {
+				Dom.get('current_lap_time').style.backgroundColor = '';
+		  }, 1000);
+			
+			score += 1;
+			currentLapTime -= 1.5;
+			console.log("Money");
+		}
+
+		function triggerTurbo() {
+			turboCurrentFov = fieldOfView;
+			turboTimeDone = 0.0;
+			turboTriggered = true;
+			console.log("GO CRAZYYYY");
+		}
+
+		function updateFOV(fov) {
+			cameraDepth = 1 / Math.tan((fov/2) * Math.PI/180);
+			playerZ = (cameraHeight * cameraDepth);
 		}
 		
 		//-------------------------------------------------------------------------
@@ -377,7 +373,7 @@
 			// Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
 			Render.background(ctx, background, width, height, BACKGROUND.TREES, treeOffset, resolution * treeSpeed * playerY);
 			
-			var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
+			var n, i, segment, creature, sprite, spriteScale, spriteX, spriteY;
 			
 			for (n = 0; n < drawDistance; n++) {
 
@@ -413,12 +409,12 @@
 			for (n = (drawDistance - 1); n > 0; n--) {
 				segment = segments[(baseSegment.index + n) % segments.length];
 				
-				for (i = 0; i < segment.cars.length; i++) {
-					car = segment.cars[i];
-					spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent);
-					spriteX = Util.interpolate(segment.p1.screen.x, segment.p2.screen.x, car.percent) + (spriteScale * car.offset * roadWidth * width / 2);
-					spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, car.percent);
-					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+				for (i = 0; i < segment.creatures.length; i++) {
+					creature = segment.creatures[i];
+					spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, creature.percent);
+					spriteX = Util.interpolate(segment.p1.screen.x, segment.p2.screen.x, creature.percent) + (spriteScale * creature.offset * roadWidth * width / 2);
+					spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, creature.percent);
+					Render.sprite(ctx, width, height, resolution, roadWidth, sprites, creature.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
 				}
 
 				for (var i = 0; i < segment.sprites.length; i++) {
@@ -466,7 +462,7 @@
 				p2: { world: { y: y, z: (n + 1) * segmentLength }, camera: {}, screen: {} },
 				curve: curve,
 				sprites: [],
-				cars: [],
+				creatures: [],
 				object: null,
 				color: Math.floor(n / rumbleLength) % 2 ? COLORS.DARK : COLORS.LIGHT
 			});
@@ -570,9 +566,8 @@
 			addDownhillToEnd();
 			
 			resetSprites();
-			resetCars();
-			resetCoins();
-			resetNitros();
+			resetCreatures();
+			resetObjects();
 			
 			segments[findSegment(playerZ).index + 2].color = COLORS.START;
 			segments[findSegment(playerZ).index + 3].color = COLORS.START;
@@ -627,74 +622,70 @@
 			}
 		}
 
-		function resetCars() {
-			cars = [];
-			var n, car, segment, offset, z, sprite, speed;
-			for (var n = 0; n < totalCars; n++) {
+		function resetCreatures() {
+			creatures = [];
+			var n, creature, segment, offset, z, sprite, speed;
+			for (var n = 0; n < totalCreatures; n++) {
 				offset = Math.random() * Util.randomChoice([-0.8, 0.8]);
 				z = Math.floor(Math.random() * segments.length) * segmentLength;
 				sprite = Util.randomChoice(SPRITES.CREATURES);
 				speed = maxSpeed / 4 + Math.random() * maxSpeed / (sprite == SPRITES.TROLL ? 4 : 2);
-				car = { offset: offset, z: z, sprite: sprite, speed: speed };
-				segment = findSegment(car.z);
-				segment.cars.push(car);
-				cars.push(car);
+				creature = { offset: offset, z: z, sprite: sprite, speed: speed };
+				segment = findSegment(creature.z);
+				segment.creatures.push(creature);
+				creatures.push(creature);
 			}
 		}
 		
-		function resetCoins() {
-			coins = [];
+		function resetObjects() {
+			objects = [];
 		  score = 0;
-		  var n, coin, segment, offset, z, sprite;
-		  var coinSeparation = 7500; // Set this to the desired minimum distance between coins
+		  var n, coin, nitro, segment, offset, z;
+
+			for (i = 0; i < segments.length; i++)
+				segments[i].object = null;
 			
 		  for (var n = 0; n < totalCoins; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				z = getValidZ(coins, 50, 30, coinSeparation);			
+				z = getValidZ("coin");			
 		    coin = { offset: offset, z: z, source: SPRITES.COIN };
 		    segment = findSegment(coin.z);
 		    segment.object = coin;
-		    coins.push(coin);
+		    objects.push(coin);
 		  }
-		}
-
-		function resetNitros() {
-			nitros = [];
-			var n, nitro, segment, offset, z;
-			var nitroSeparation = 100000; // Set this to the desired minimum distance between coins
-
+			
 			for (var n = 0; n < totalNitros; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				z = getValidZ(nitros, 50, 200, nitroSeparation)
+				z = getValidZ("nitro")
 				nitro = { offset: offset, z: z, source: SPRITES.NITRO};
 				segment = findSegment(nitro.z);
 				segment.object = nitro;
-				nitros.push(nitro);
+				objects.push(nitro);
 			}
 		}
+		
+		function getValidZ(targetName) {
+			var tooClose, isWithinRange, interval
+			var coinSeparation = 7500; 
+			var nitroSeparation = 100000; 
+			var startSegment = 180;
+			var endSegment = targetName === "coin" ? 50 : 300;
 
-		function getValidZ(objectsArray, startSegment, endSegment, interval) {
 			do {
 				z = Math.floor(Math.random() * segments.length) * segmentLength;
-							
-				// Check if the new z value is too close to any existing nitros
-				var tooClose = false;
-				for (var i = 0; i < objectsArray.length; i++) {
-					var existingObject = objectsArray[i];
-					if ((z - existingObject.z) >= 0) {
-						if ((z - existingObject.z) < interval) {
-							tooClose = true;
-							break;
-						}
-					} else if ((existingObject.z - z) < interval) {
-						tooClose = true;
-						break;
-					}
-				}
 			
+				// Check if the new z value is too close to any existing objects
+				tooClose = objects.some(existingObject => {
+					interval = (
+						existingObject.source === SPRITES.NITRO && 
+						targetName						=== "nitro"
+					) ? nitroSeparation : coinSeparation;
+					return Math.abs(existingObject.z - z) < interval;
+				});
+
 				// Check if the new z value is within the desired range
-				var isWithinRange = findSegment(z).index < startSegment ||
-														findSegment(z).index > segments.length - endSegment;
+				isWithinRange = findSegment(z).index < startSegment ||
+												findSegment(z).index > segments.length - endSegment;
 			
 			} while (tooClose || isWithinRange || findSegment(z).object); // Keep generating new z values until we find one that's not too close to other nitros and within the desired range
 			return z;
@@ -746,19 +737,6 @@
 			if ((segments.length == 0) || (options.segmentLength) || (options.rumbleLength))
 				resetRoad(); // only rebuild road when necessary
 		}
-		
-		function updateFOV(fov) {
-			cameraDepth = 1 / Math.tan((fov/2) * Math.PI/180);
-			playerZ = (cameraHeight * cameraDepth);
-		}
-
-		function triggerTurbo() {
-			if (!turboTriggered) {
-				turboCurrentFov = fieldOfView;
-				turboTimeDone = 0.0;
-				turboTriggered = true;
-			}
-		}
 
 		//=========================================================================
 		// MOBILE RESCALING FUNCTIONS
@@ -767,14 +745,14 @@
 		document.addEventListener("DOMContentLoaded", scaleRacer);
 
 		function scaleRacer() {
-		  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints;
-		  const racer = Dom.get('racer');
-		  const mute = Dom.get('mute');
-		  const hud = Dom.get('hud');
-		  const gamepad = Dom.get('gamepad');
-			const fast_lap_time = Dom.get('fast_lap_time');
-		  const rightButtons = document.querySelector('.right-buttons');
-		  const leftButtons = document.querySelector('.left-buttons');
+		  var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints;
+		  var racer = Dom.get('racer');
+		  var mute = Dom.get('mute');
+		  var hud = Dom.get('hud');
+		  var gamepad = Dom.get('gamepad');
+			var fast_lap_time = Dom.get('fast_lap_time');
+		  var rightButtons = document.querySelector('.right-buttons');
+		  var leftButtons = document.querySelector('.left-buttons');
 
 		  if (isMobile) {
 		    reset({ width: 640, height: 480 });
@@ -794,7 +772,7 @@
 		}
 
 		function setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time) {
-			fast_lap_time.style.width = '9em'
+			fast_lap_time.style.width = '10em'
 		  hud.style.fontSize = '1.5em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '0%';
@@ -812,7 +790,7 @@
 		}
 		
 		function setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time) {
-			fast_lap_time.style.width = '9em'
+			fast_lap_time.style.width = '10em'
 		  hud.style.fontSize = '1.5em';
 		  racer.style.transform = 'scale(0.6)';
 		  racer.style.marginTop = '-15%';
@@ -824,27 +802,27 @@
 		  gamepad.style.width = '100%';
 		  rightButtons.style.marginLeft = '94%';
 		  rightButtons.style.marginTop = '10%';
-		  leftButtons.style.marginLeft = '1%';
+		  leftButtons.style.marginLeft = '1%';q
 		  leftButtons.style.marginTop = '25%';
 			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
 		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
 			fast_lap_time.style.width = '12em'
-		  hud.style.fontSize = '1.3em';
+		  hud.style.fontSize = '1.2em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '2%';
-		  racer.style.marginLeft = '27em';
-		  mute.style.marginLeft = '92.5em';
-		  mute.style.marginTop = '2.3%';
+		  racer.style.marginLeft = '0em';
+			mute.style.marginLeft = '1040px';		  
+			mute.style.marginTop = '2.3%';
 		  mute.style.transform = 'scale(2)';
 		}
 
 		function createGamepadIfNeeded() {
-		  const existingGamepad = Dom.get('gamepad');
+		  var existingGamepad = Dom.get('gamepad');
 
 		  if (!existingGamepad) {
-		    const gamepadHTML = `
+		    var gamepadHTML = `
 		      <div id='gamepad'>
 		        <div class='left-buttons'>
 		          <div id='gamepad-left' class='gamepad-button'><span><</span></div>
@@ -863,7 +841,7 @@
 
 		// Disable zoom on double-touch gestures
     document.addEventListener('touchend', function(event) {
-      const now = new Date().getTime();
+      var now = new Date().getTime();
       if (now - lastTouchEnd <= 300) {
         event.preventDefault();
       }
