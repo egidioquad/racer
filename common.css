@@ -2,36 +2,36 @@
 /* common styles used for v1 through v4 */
 /****************************************/
 body {
-  font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 #racer {
-  float: left;
-  position: relative;
-  z-index: 0;
-  width: 640px;
-  height: 480px;
-  border: 2px solid black;
+    float: left;
+    position: relative;
+    z-index: 0;
+    width: 640px;
+    height: 480px;
+    border: 2px solid black;
 }
 #canvas {
-  position: absolute;
-  z-index: 0;
-  width: 640px;
-  height: 480px;
-  z-index: 0;
-  background-color: #72d7ee;
+    position: absolute;
+    z-index: 0;
+    width: 640px;
+    height: 480px;
+    z-index: 0;
+    background-color: #72d7ee;
 }
 #mute {
-  background-position: 0px 0px;
-  width: 32px;
-  height: 32px;
-  background: url(images/mute.png);
-  display: inline-block;
-  cursor: pointer;
-  position: absolute;
-  margin-left: 20em;
+    background-position: 0px 0px;
+    width: 32px;
+    height: 32px;
+    background: url(images/mute.png);
+    display: inline-block;
+    cursor: pointer;
+    position: absolute;
+    margin-left: 20em;
 }
 #mute.on {
-  background-position: -32px 0px;
+    background-position: -32px 0px;
 }
 
 /**************************************************/
@@ -39,56 +39,110 @@ body {
 /**************************************************/
 
 #hud {
-  position: absolute;
-  z-index: 1;
-  width: 640px;
-  padding: 5px 0;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 0.8em;
-  background-color: rgba(255, 0, 0, 0.4);
-  color: black;
-  border-bottom: 2px solid black;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    width: 640px;
+    padding: 5px 0;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 0.8em;
+    background-color: rgba(255, 0, 0, 0.4);
+    color: black;
+    border-bottom: 2px solid black;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 #hud .hud {
-  background-color: rgba(255, 255, 255, 0.6);
-  padding: 5px;
-  border: 1px solid black;
-  margin: 0 5px;
-  transition-property: background-color;
-  transition-duration: 2s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 2s;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 5px;
+    border: 1px solid black;
+    margin: 0 5px;
+    transition-property: background-color;
+    transition-duration: 2s;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: 2s;
 }
 #hud #speed {
-  float: right;
+    float: right;
 }
 #hud #current_lap_time {
-  float: left;
+    float: left;
 }
 #hud #last_lap_time {
-  float: left;
-  display: none;
+    float: left;
+    display: none;
 }
 #hud #fast_lap_time {
-  display: block;
-  width: 12em;
-  margin: 0 auto;
-  text-align: center;
-  transition-property: background-color;
-  transition-duration: 2s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 2s;
+    display: block;
+    width: 12em;
+    margin: 0 auto;
+    text-align: center;
+    transition-property: background-color;
+    transition-duration: 2s;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: 2s;
 }
 #hud #coins {
-  float: right;
+    float: right;
 }
 #hud .value {
-  color: black;
-  font-weight: bold;
+    color: black;
+    font-weight: bold;
 }
 #hud .fastest {
-  background-color: rgba(255, 215, 0, 0.5);
+    background-color: rgba(255, 215, 0, 0.5);
+}
+
+#leaderboard-container {
+    position: absolute;
+    top: 500px;
+    width: 542px; /* Adjust the width as needed */
+    background-color: #646464;
+    padding: 10px;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    box-shadow: 0px 9px 9px 1px #00000040,
+        inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
+
+    font-family: "Book Antiqua", sans-serif; /* Add the font-family */
+}
+
+/* Styles for each leaderboard entry */
+.leaderboard-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Styles for individual elements within the entry */
+.rank {
+    flex-shrink: 0; /* Prevent rank from shrinking */
+    width: 30px; /* Adjust the width of the rank */
+    text-align: center; /* Center the rank text */
+}
+
+.btc-address {
+    flex-shrink: 0; /* Prevent rank from shrinking */
+    width: 370px; /* Adjust the width of the rank */
+    text-align: center; /* Center the rank text */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
+    padding: 0 5px;
+}
+.score {
+    flex: 1;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
+    padding: 0 5px;
+    text-align: center; /* Center the rank text */
+}
+
+.line-separator {
+    width: 99%;
+
+    height: 2px;
+    background-color: #000000;
+    margin: 10px auto;
 }

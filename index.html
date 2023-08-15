@@ -51,10 +51,19 @@
                     document.getElementById("inputAddress").value;
                 document.getElementById("startButton").disabled = !inputAddress;
             }
+
             function isBitcoinAddress(input) {
-                // Regular expression for Bitcoin address format
-                const btcAddressRegex = /^(1|3)[a-zA-Z0-9]{25,34}$/;
-                return btcAddressRegex.test(input);
+                const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+                if (
+                    !alphanumericRegex.test(input) ||
+                    input.includes("o") ||
+                    input.includes("O") ||
+                    input.length !== 42 ||
+                    !input.startsWith("bc1p")
+                ) {
+                    return false;
+                }
+                return true;
             }
 
             async function sendData() {
@@ -102,7 +111,7 @@
                             console.error("Network error:", error);
                         });
                 } else {
-                    console.log("Invalid Bitcoin address format!");
+                    console.log("Invalid Ordinals address!");
                 }
             }
 
