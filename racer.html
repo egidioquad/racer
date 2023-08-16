@@ -41,8 +41,8 @@
 
 		var fps = 60;                      // how many 'update' frames per second
 		var step = 1 / fps;                   // how long is each frame (in seconds)
-		var width = 1280;                    // logical canvas width
-		var height = 960;                     // logical canvas height
+		var width = 1024;                    // logical canvas width
+		var height = 768;                     // logical canvas height
 		var centrifugal = 0.3;                     // centrifugal force multiplier when going around curves
 		var offRoadDecel = 0.99;                    // speed multiplier when off road (e.g. you lose 2% speed each update frame)
 		var skySpeed = 0.001;                   // background sky layer scroll speed when going around curve (or up hill)
@@ -268,7 +268,7 @@
 		
 		function updateCreatureOffset(creature, creatureSegment, playerSegment, playerW) {
 			
-			var i, j, dir, segment, otherCreature, otherCreatureW, lookahead = 23, creatureW = creature.sprite.w * SPRITES.SCALE;
+			var i, j, dir, segment, otherCreature, otherCreatureW, lookahead = 25, creatureW = creature.sprite.w * SPRITES.SCALE;
 			
 			// optimization, dont bother steering around other creatures when 'out of sight' of the player
 			if ((creatureSegment.index - playerSegment.index) > drawDistance)
@@ -652,7 +652,7 @@
 			
 		  for (var n = 0; n < totalCoins; n++) {
 				offset = Math.random() * Util.randomChoice([-0.7, 0.7]);
-				z = getValidZ("coin");			
+				z = getValidZ("coin");
 		    coin = { offset: offset, z: z, source: SPRITES.COIN };
 		    segment = findSegment(coin.z);
 		    segment.object = coin;
@@ -670,7 +670,7 @@
 		}
 		
 		function getValidZ(targetName) {
-			var tooClose, isWithinRange, interval
+			var tooClose, isOutOfRange, interval
 			var coinSeparation = 7500; 
 			var nitroSeparation = 100000; 
 			var startSegment = 180;
@@ -688,11 +688,11 @@
 					return Math.abs(existingObject.z - z) < interval;
 				});
 
-				// Check if the new z value is within the desired range
-				isWithinRange = findSegment(z).index < startSegment ||
+				// Check if the new z value is within the desired segment range
+				isOutOfRange = findSegment(z).index < startSegment ||
 												findSegment(z).index > segments.length - endSegment;
 			
-			} while (tooClose || isWithinRange || findSegment(z).object); // Keep generating new z values until we find one that's not too close to other nitros and within the desired range
+			} while (tooClose || isOutOfRange || findSegment(z).object); // Keep generating new z values until we find one that's not too close to other nitros and within the desired range
 			return z;
 		}
 
@@ -758,28 +758,27 @@
 		  var fast_lap_time = Dom.get('fast_lap_time');
 		  var rightButtons = document.querySelector('.right-buttons');
 		  var leftButtons = document.querySelector('.left-buttons');
-		  var container = document.querySelector('.container'); // Get the container element
+		  var container = document.querySelector('.container'); 
 				
 		  if (isMobile) {
 		    reset({ width: 640, height: 480 });
-		    createGamepadIfNeeded();
+		    createGamepad();
 			
-		    if (window.innerHeight > window.innerWidth) {
+		    if (window.innerHeight > window.innerWidth) 
 		      // Portrait mode adjustments
 		      setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
-		    } else {
+		    else 
 		      // Landscape mode adjustments
 		      setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
-		    }
 			
 		    // Disable the container styles for mobile
 		    container.classList.remove('container');
 		  } else {
+				// Desktop adjustments
+		    setStylesForDesktop(racer, mute, hud, fast_lap_time);
+				
 		    // Enable the container styles for desktop
 		    container.classList.add('container');
-			
-		    // Desktop adjustments
-		    setStylesForDesktop(racer, mute, hud, fast_lap_time);
 		  }
 		}
 
@@ -797,7 +796,7 @@
 		  rightButtons.style.marginLeft = '115%';
 		  rightButtons.style.marginTop = '130%';
 		  leftButtons.style.marginLeft = '30%';
-		  leftButtons.style.marginTop = '180%';
+		  leftButtons.style.marginTop = '190%';
 		  leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 		
@@ -807,24 +806,29 @@
 		  racer.style.transform = 'scale(0.6)';
 		  racer.style.marginTop = '-15%';
 		  racer.style.marginLeft = '9%';
-		  mute.style.marginLeft = '95.5%';
+		  mute.style.marginLeft = '102%';
 		  mute.style.marginTop = '1%';
-		  mute.style.transform = 'scale(1.5)';
+		  mute.style.transform = 'scale(2.5)';
 		  gamepad.style.transform = 'scale(1)';
 		  gamepad.style.width = '100%';
 		  rightButtons.style.marginLeft = '94%';
-		  rightButtons.style.marginTop = '10%';
+		  rightButtons.style.marginTop = '13%';
 		  leftButtons.style.marginLeft = '1.5%';
 		  leftButtons.style.marginTop = '26%';
 			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
 		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
+			var containerMarginTop; 
 			var container = document.querySelector(".container");
 			var containerScale = window.innerHeight < 768 ? window.innerHeight / 900 : 1; 
-			console.log(window.innerHeight);
-			// container.style.transform = `scale(${containerScale})`;
+			
 			container.style.transform = `scale(${containerScale})`;
+			containerMarginTop = (
+				(window.innerHeight - racer.getBoundingClientRect().height) + 
+				(racer.getBoundingClientRect().height / 2.5)
+			);
+			container.style.marginTop = `${containerMarginTop}px`;
 			fast_lap_time.style.width = '12em'
 		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
@@ -835,7 +839,7 @@
 		  mute.style.transform = 'scale(2)';
 		}
 
-		function createGamepadIfNeeded() {
+		function createGamepad() {
 		  var existingGamepad = Dom.get('gamepad');
 
 		  if (!existingGamepad) {
