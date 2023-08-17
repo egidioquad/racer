@@ -821,15 +821,16 @@
 		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
 			var containerMarginTop; 
 			var container = document.querySelector(".container");
-			var containerScale = window.innerHeight < 768 ? window.innerHeight / 900 : 1; 
+			var containerScale = window.innerHeight < 900 ? window.innerHeight / 900 : 1; 
 			
 			container.style.transform = `scale(${containerScale})`;
 			containerMarginTop = (
-				(window.innerHeight - racer.getBoundingClientRect().height) + 
-				(racer.getBoundingClientRect().height / 2.5)
+				racer.getBoundingClientRect().height / 2 +
+				((window.innerHeight - racer.getBoundingClientRect().height) / 3)
 			);
+			console.log(window.innerHeight)
 			container.style.marginTop = `${containerMarginTop}px`;
-			fast_lap_time.style.width = '12em'
+			fast_lap_time.style.width = '11em'
 		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '';
