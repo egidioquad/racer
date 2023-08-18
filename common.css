@@ -12,6 +12,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
 #racer {
   position: absolute;
   z-index: 0;
@@ -54,7 +55,7 @@ body {
   width: 1024px;
   padding: 10px 0;
   font-family: Verdana, Geneva, sans-serif;
-  background-color: rgba(255, 0, 0, 0.465);
+  background-color: rgba(255, 0, 0, 0.641);
   color: black;
   border-bottom: 2px solid rgb(255, 255, 255);
   box-sizing: border-box;
@@ -65,7 +66,7 @@ body {
   background-color: rgba(255, 255, 255, 0.6);
   padding: 10px;
   border: 1px solid rgb(255, 255, 255);
-  margin: 0 10px;
+  margin: 0 5px;
   transition-property: background-color;
   transition-duration: 2s;
   -webkit-transition-property: background-color;
@@ -140,25 +141,32 @@ body {
   display: inline-block;
 }
 
+/***************/
+/* Leaderboard */
+/***************/
+
 #leaderboard-button {
-  font-size: 3em;
+  margin-top : 800px;
+  margin-left : 878px;
+  font-size: 1em;
   position: absolute;
-  margin-top: 30%;
-  margin-left: 40%;
+  white-space: nowrap;
 }
 
 #leaderboard-container {
   position: absolute;
-  top: 500px;
-  width: 542px; /* Adjust the width as needed */
-  background-color: #646464;
+  width: 540px; /* Adjust the width as needed */
+  background-color: rgba(193, 29, 29, 0.53);
   padding: 10px;
-  border: 2px solid #000000;
+  border: 2px solid #ffffff;
   border-radius: 10px;
   box-shadow: 0px 9px 9px 1px #00000040,
       inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
 
   font-family: "Book Antiqua", sans-serif; /* Add the font-family */
+  margin-left: -1250px;
+  margin-top: -590px;
+  color: #ffffff;
 }
 
 /* Styles for each leaderboard entry */
@@ -197,6 +205,6 @@ body {
   width: 99%;
 
   height: 2px;
-  background-color: #000000;
+  background-color: #ffffff;
   margin: 10px auto;
 }
