@@ -845,7 +845,7 @@
 		  mute.style.marginTop = '0.5em';
 		  mute.style.transform = 'scale(2)';
 			racerHeight = racer.getBoundingClientRect().height;
-			containerMarginTop = (racerHeight / 2) + ((window.innerHeight - racerHeight) / 3);
+			containerMarginTop = (racerHeight / 2) + (window.innerHeight - racerHeight) / 3;
 			container.style.marginTop = `${containerMarginTop}px`;
 		}
 
@@ -1006,7 +1006,7 @@
 			      `<div class="leaderboard-entry">
 			        <span class="rank">${index + 1}</span>
 			        <span class="btc-address">${entry.btcAddress}</span>
-			        <span class="score">${entry.fast_lap.toFixed(2)}</span>
+			        <span class="score">${formatTime(entry.fast_lap)}</span>
 			       </div>`
 			  )
 			  .join("");
