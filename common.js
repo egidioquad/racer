@@ -132,7 +132,6 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
 				requestAnimationFrame(frame, canvas);
 			}
 			frame(); // lets get this party started
-			Game.playMusic();
 		});
 	},
 
@@ -180,38 +179,38 @@ var Game = {  // a modified version of the game loop from my previous boulderdas
     // Setup listeners on div to activate functions (for mobile devices)
     var n, k;
     for(n = 0 ; n < keys.length ; n++) {
-        k = keys[n]
-        if (k.div) {
-            elt = document.getElementById(k.div);
-            if (elt) { // if the specified div element does not exist, just skip (probably the gamepad is not coded in the html)
-                if (k.mode == 'up') {
-                    elt.onmouseup = k.action;
-                    elt.addEventListener('mouseup', k.action);
-                    elt.addEventListener('touchend', k.action);
-                } else {
-                    elt.onmousedown = k.action; // fallback for old devices
-                    elt.addEventListener('mousedown', k.action);
-                    elt.addEventListener('touchstart', k.action);
-                }
-            }
+      k = keys[n]
+      if (k.div) {
+        elt = document.getElementById(k.div);
+        if (elt) { // if the specified div element does not exist, just skip (probably the gamepad is not coded in the html)
+          if (k.mode == 'up') {
+            elt.onmouseup = k.action;
+            elt.addEventListener('mouseup', k.action);
+            elt.addEventListener('touchend', k.action);
+          } else {
+            elt.onmousedown = k.action; // fallback for old devices
+            elt.addEventListener('mousedown', k.action);
+            elt.addEventListener('touchstart', k.action);
+          }
         }
+      }
     }
   },
 
 	//---------------------------------------------------------------------------
 
-	playMusic: function () {
-		var music = Dom.get('music');
-		music.loop = true;
-		music.volume = 0.1; // shhhh! annoying music!
-		music.muted = (Dom.storage.muted === "true");
-		music.play();
-		Dom.toggleClassName('mute', 'on', music.muted);
-		Dom.on('mute', 'click', function () {
-			Dom.storage.muted = music.muted = !music.muted;
-			Dom.toggleClassName('mute', 'on', music.muted);
-		});
-	}
+  playMusic: function() {
+    var music = Dom.get('music');
+    music.volume = 0.05; // shhhh! annoying music!
+    music.muted = !music.muted;
+    if (!music.muted) {
+      music.play();
+      Dom.toggleClassName('mute', 'on', music.muted);
+    } else {
+      music.pause();
+      Dom.toggleClassName('mute', 'on', music.muted);
+    }
+  }
 
 }
 

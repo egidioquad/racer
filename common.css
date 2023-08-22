@@ -146,7 +146,7 @@ body {
 /***************/
 
 #leaderboard-button {
-  margin-top : 800px;
+  margin-top : 735px;
   margin-left : 878px;
   font-size: 1em;
   position: absolute;
@@ -164,8 +164,8 @@ body {
       inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
 
   font-family: "Book Antiqua", sans-serif; /* Add the font-family */
-  margin-left: -1100px;
-  margin-top: -596px;
+  margin-left: -580px;
+  margin-top: -45px;
   color: #ffffff;
 }
 
