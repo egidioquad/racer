@@ -33,6 +33,7 @@
 			<span id="mute"></span>
 		</div>
 
+		
 		<div id="leaderboard-container"></div>
 
 	</div>
@@ -787,7 +788,7 @@
 		    container.classList.remove('container');
 		  } else {
 				// Desktop adjustments
-		    setStylesForDesktop(racer, mute, hud, fast_lap_time);
+		    setStylesForDesktop(container, racer, mute, hud, fast_lap_time);
 				
 		    // Enable the container styles for desktop
 		    container.classList.add('container');
@@ -830,24 +831,30 @@
 			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
-		function setStylesForDesktop(racer, mute, hud, fast_lap_time) {
-			var container = document.querySelector(".container");
-			var containerScale = window.innerHeight < 900 ? window.innerHeight / 900 : 1; 
-			var containerMarginTop, racerHeight; 
-			
-			container.style.transform = `scale(${containerScale})`;
-			fast_lap_time.style.width = '11em'
+		function setStylesForDesktop(container, racer, mute, hud, fast_lap_time) {
+		  // Calculate scale factors for height and width
+		  const heightScale = Math.min(window.innerHeight / 900, 1);
+		  const widthScale = Math.min(window.innerWidth / 1800, 1);
+
+		  // Apply container scaling
+		  container.style.transform = `scale(${Math.min(heightScale, widthScale)})`;
+
+		  // Set styles for other elements
+		  fast_lap_time.style.width = '11em';
 		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '';
-		  racer.style.marginLeft = '400px';
+		  racer.style.marginLeft = '550px';
 		  mute.style.marginLeft = '1045px';
 		  mute.style.marginTop = '0.5em';
 		  mute.style.transform = 'scale(2)';
-			racerHeight = racer.getBoundingClientRect().height;
-			containerMarginTop = (racerHeight / 2) + (window.innerHeight - racerHeight) / 3;
-			container.style.marginTop = `${containerMarginTop}px`;
+
+		  // Calculate and apply container margin-top
+		  const racerHeight = racer.getBoundingClientRect().height;
+		  const containerMarginTop = (racerHeight / 2) + (window.innerHeight - racerHeight) / 3;
+		  container.style.marginTop = `${containerMarginTop}px`;
 		}
+
 
 		function createGamepad() {
 		  var existingGamepad = Dom.get('gamepad');
