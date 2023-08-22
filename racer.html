@@ -33,8 +33,8 @@
 			<span id="mute"></span>
 		</div>
 
-		
-		<div id="leaderboard-container"></div>
+		<button id="leaderboard-button">Show Leaderboard</button>
+		<div id="leaderboard-container" style="display: none;"></div>
 
 	</div>
 
@@ -90,7 +90,7 @@
 		var lastLapTime = null;                    // last lap time
 		let lastTouchEnd = 0;												// count times screen is touched 
 		let firstLapStarted = false;
-		let isLeaderboardVisible = false; // Keep track of visibility state
+		let isLeaderboardVisible = false; 				// Keep track of visibility state
 
 		// Nitro variables
 		var turboDuration = 5;                            // duration of turbo in seconds
@@ -769,6 +769,7 @@
 		  var hud = Dom.get('hud');
 		  var gamepad = Dom.get('gamepad');
 		  var fast_lap_time = Dom.get('fast_lap_time');
+			var leaderboard = Dom.get("leaderboard-container");
 		  var rightButtons = document.querySelector('.right-buttons');
 		  var leftButtons = document.querySelector('.left-buttons');
 		  var container = document.querySelector('.container'); 
@@ -788,7 +789,7 @@
 		    container.classList.remove('container');
 		  } else {
 				// Desktop adjustments
-		    setStylesForDesktop(container, racer, mute, hud, fast_lap_time);
+		    setStylesForDesktop(container, racer, mute, hud, fast_lap_time, leaderboard);
 				
 		    // Enable the container styles for desktop
 		    container.classList.add('container');
@@ -831,20 +832,20 @@
 			leftButtons.style.position = rightButtons.style.position = 'absolute';
 		}
 
-		function setStylesForDesktop(container, racer, mute, hud, fast_lap_time) {
+		function setStylesForDesktop(container, racer, mute, hud, fast_lap_time, leaderboard) {
 		  // Calculate scale factors for height and width
 		  const heightScale = Math.min(window.innerHeight / 900, 1);
 		  const widthScale = Math.min(window.innerWidth / 1800, 1);
 
 		  // Apply container scaling
 		  container.style.transform = `scale(${Math.min(heightScale, widthScale)})`;
-
+			
 		  // Set styles for other elements
 		  fast_lap_time.style.width = '11em';
 		  hud.style.fontSize = '1.3em';
 		  racer.style.transform = 'scale(1)';
 		  racer.style.marginTop = '';
-		  racer.style.marginLeft = '550px';
+		  racer.style.marginLeft = isLeaderboardVisible === false ? '0px' : '550px';
 		  mute.style.marginLeft = '1045px';
 		  mute.style.marginTop = '0.5em';
 		  mute.style.transform = 'scale(2)';
@@ -993,41 +994,55 @@
 		//=========================================================================
 
 		const leaderboardContainer = Dom.get("leaderboard-container");
+		const leaderboardButton = document.getElementById("leaderboard-button");
+
+		leaderboardButton.addEventListener("click", () => {
+		  if (isLeaderboardVisible === false) {
+		    // Show the leaderboard container
+		    leaderboardContainer.style.display = "block";
+		    isLeaderboardVisible = true;
+				
+		  } else {
+				// Hide the leaderboard container
+		    leaderboardContainer.style.display = "none";
+		    isLeaderboardVisible = false;
+		  }
+			scaleRacer()
+		});
 		
 		async function updateLeaderboard () {		  
 			const topScores = await fetchLeaderboard();
 			console.log("leaderboard json:", topScores);
-		
+			
 			const headerHTML = `
-			  <div class="leaderboard-entry">
+			<div class="leaderboard-entry">
 			    <span class="rank">#</span>
 			    <span class="btc-address">Racer</span>
 			    <span class="score">Fastest Lap</span>
-			  </div> <div class="line-separator"></div>
-			`;
-
-			// Create the leaderboard entry rows
-			const leaderboardHTML = topScores
-			  .map(
-			    (entry, index) =>
+					</div> <div class="line-separator"></div>
+					`;
+					
+					// Create the leaderboard entry rows
+					const leaderboardHTML = topScores
+					.map(
+						(entry, index) =>
 			      `<div class="leaderboard-entry">
 			        <span class="rank">${index + 1}</span>
 			        <span class="btc-address">${entry.btcAddress}</span>
 			        <span class="score">${formatTime(entry.fast_lap)}</span>
-			       </div>`
+							</div>`
 			  )
 			  .join("");
-					 
-			// Combine header row and leaderboard entry rows
-			leaderboardContainer.innerHTML = headerHTML + leaderboardHTML;
-		};
-
-		updateLeaderboard();
-
-		// Update the leaderboard every minute
-		setInterval(updateLeaderboard, 60000); 
-
-	</script>
+				
+				// Combine header row and leaderboard entry rows
+				leaderboardContainer.innerHTML = headerHTML + leaderboardHTML;
+			};
+			updateLeaderboard();
+			
+			// Update the leaderboard every minute
+			setInterval(updateLeaderboard, 60000); 
+			
+			</script>
 </body>
 
 </html>
