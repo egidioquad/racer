@@ -1001,5 +1001,5 @@ function racer() {
   updateLeaderboard();
     
   // Update the leaderboard every minute
-  setInterval(updateLeaderboard, 60000); 
+  setInterval(updateLeaderboard, 60000);
 }
