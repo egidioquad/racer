@@ -583,22 +583,22 @@
 		}
 
 		function resetSprites() {
-			var n, i;
+			var n, i, previousBillboard, billboard;
 
 			addSprite(20, SPRITES.BILLBOARD007, -1);
-			addSprite(40, SPRITES.BILLBOARD007, -1);
-			addSprite(60, SPRITES.BILLBOARD007, -1);
-			addSprite(80, SPRITES.BILLBOARD007, -1);
+			addSprite(40, SPRITES.BILLBOARD05, -1);
+			addSprite(60, SPRITES.BILLBOARD09, -1);
+			addSprite(80, SPRITES.BILLBOARD08, -1);
 			addSprite(100, SPRITES.BILLBOARD007, -1);
-			addSprite(120, SPRITES.BILLBOARD007, -1);
-			addSprite(140, SPRITES.BILLBOARD007, -1);
-			addSprite(160, SPRITES.BILLBOARD007, -1);
+			addSprite(120, SPRITES.BILLBOARD05, -1);
+			addSprite(140, SPRITES.BILLBOARD09, -1);
+			addSprite(160, SPRITES.BILLBOARD08, -1);
 			addSprite(180, SPRITES.BILLBOARD007, -1);
 			
-			addSprite(240, SPRITES.BILLBOARD007, -1.2);
-			addSprite(240, SPRITES.BILLBOARD007, 1.2);
+			addSprite(240, SPRITES.BILLBOARD08, -1.2);
+			addSprite(240, SPRITES.BILLBOARD05, 1.2);
 			addSprite(segments.length - 25, SPRITES.BILLBOARD007, -1.2);
-			addSprite(segments.length - 25, SPRITES.BILLBOARD007, 1.2);
+			addSprite(segments.length - 25, SPRITES.BILLBOARD09, 1.2);
 
 			for (n = 10; n < 200; n += 4 + Math.floor(n / 100)) {
 				addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random() * 0.5);
@@ -618,7 +618,11 @@
 			var side, sprite, offset;
 			for (n = 1000; n < (segments.length - 50); n += 100) {
 				side = Util.randomChoice([1, -1]);
-				addSprite(n + Util.randomInt(0, 50), Util.randomChoice(SPRITES.BILLBOARDS), -side);
+				do {
+					billboard = Util.randomChoice(SPRITES.BILLBOARDS);
+				} while (billboard === previousBillboard);
+				previousBillboard = billboard
+				addSprite(n + Util.randomInt(0, 50), billboard, -side);
 				for (i = 0; i < 10; i++) {
 					sprite = Util.randomChoice(SPRITES.PLANTS);
 					offset = side * (1.5 + Math.random());
