@@ -94,13 +94,13 @@
             var fogDensity = 5; // exponential fog density
             var position = 0; // current camera Z position (add playerZ to get player's absolute Z position)
             var speed = 0; // current speed
-            var maxSpeed = (segmentLength / step) * 5; // top speed (ensure we can't move more than 1 segment in a single frame to make collision detection easier)
-            var accel = (maxSpeed / 5) * 5; // acceleration rate - tuned until it 'felt' right
+            var maxSpeed = (segmentLength / step) *2 //* 5; // top speed (ensure we can't move more than 1 segment in a single frame to make collision detection easier)
+            var accel = (maxSpeed / 5) //* 5; // acceleration rate - tuned until it 'felt' right
             var breaking = -maxSpeed; // deceleration rate when braking
             var decel = -maxSpeed / 5; // 'natural' deceleration rate when neither accelerating, nor braking
             var offRoadDecel = -maxSpeed / 2; // off road deceleration is somewhere in between
             var offRoadLimit = maxSpeed / 4; // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
-            var totalCars = 0; // total number of cars on the road
+            var totalCars = 100; // total number of cars on the road
             var totalCoins = 15; // total number of coins on the road
             var currentLapTime = 0; // current lap time
             var lastLapTime = null; // last lap time
@@ -132,7 +132,7 @@
             // UPDATE THE GAME WORLD
             //=========================================================================
 
-            function update(dt) {
+           async function update(dt) {
                 var n, i, car, carW, sprite, spriteW, coin, coinW, coinIndex;
                 var playerSegment = findSegment(position + playerZ);
                 var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
@@ -268,7 +268,8 @@
                             const sonic = Util.toFloat(
                                 Dom.storage.fast_lap_time
                             );
-                            //endGameAPI(sonic);
+							console.log("lastLap:", formatTime(lastLapTime));
+                           await endGameAPI(sonic);
                             console.log("fast_lap_time --> ", sonic);
                         } else {
                             Dom.removeClassName("fast_lap_time", "fastest");
@@ -805,7 +806,7 @@
                 segments = [];
 
                 addStraight(ROAD.LENGTH.SHORT);
-                /*   addLowRollingHills();
+                   addLowRollingHills();
                                             addSCurves();
                                             addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM, ROAD.HILL.LOW);
                                             addBumps();
@@ -823,7 +824,7 @@
                                             addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM, -ROAD.HILL.LOW);
                                             addBumps();
                                             addHill(ROAD.LENGTH.LONG, -ROAD.HILL.MEDIUM);
-                                            addStraight(); */
+                                            addStraight(); 
                 addSCurves();
                 addDownhillToEnd();
 
@@ -1067,6 +1068,7 @@
             //=========================================================================
 
             function startGameAPI() {
+
                 auth_token = localStorage.getItem("auth_token");
                 console.log("auth token:", auth_token);
                 const data = {
@@ -1086,7 +1088,6 @@
                 )
                     .then(async (response) => {
                         if (response.ok) {
-                            console.log("Data sent successfully!");
                             responseBody = await response.text();
                         } else {
                             console.log(
@@ -1105,14 +1106,14 @@
                     });
             }
 
-            function endGameAPI(lap_time) {
+           async function endGameAPI(lap_time) {
                 const data = {
-                    game_token: localStorage.getItem("game_token"),
-                    lap_time: currentLapTime,
-                    btcAddress: localStorage.getItem("btcAddress"),
+                    game_token: await localStorage.getItem("game_token"),
+                    lap_time: lap_time,
+                    btcAddress: await localStorage.getItem("btcAddress"),
                 };
                 console.log("data:", data);
-                fetch(
+                await fetch(
                     "https://pvrgwmyaxynklimiusly.functions.supabase.co/end_game",
                     {
                         method: "POST",
@@ -1167,7 +1168,7 @@
 		leaderboardButton.addEventListener("click", async () => {
 		  try {
 			const response = await fetch(
-			  "https://pvrgwmyaxynklimiusly.supabase.co/functions/v1/leaderdboard",
+			  "https://pvrgwmyaxynklimiusly.supabase.co/functions/v1/leaderboard",
 			  {
 				method: "GET",
 				headers: {
@@ -1198,7 +1199,7 @@ const leaderboardHTML = topScores
             `<div class="leaderboard-entry">
                 <span class="rank">${index + 1}</span>
                 <span class="btc-address">${entry.btcAddress}</span>
-                <span class="score">${entry.fast_lap.toFixed(5)}</span>
+                <span class="score">${entry.fast_lap}</span>
              </div>`
     )
     .join("");

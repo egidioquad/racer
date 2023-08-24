@@ -58,8 +58,9 @@
                     !alphanumericRegex.test(input) ||
                     input.includes("o") ||
                     input.includes("O") ||
-                    input.length !== 42 ||
-                    !input.startsWith("bc1p")
+                    input.length < 42 ||
+                    input.length > 62 ||
+                    !input.startsWith("bc1")
                 ) {
                     return false;
                 }
@@ -153,6 +154,6 @@
         >
             Start
         </button>
-        <h1 style="opacity: 0">3KeKyoPBAWjp5R36VHe9Kb7wWC6xZqBKUC</h1>
+        <h1 style="opacity: 0">bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq</h1>
     </body>
 </html>

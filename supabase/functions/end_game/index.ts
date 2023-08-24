@@ -56,15 +56,19 @@ export default async function handler(request: Request) {
         const floatThing = fast_lap * 1000;
         const fast_lap_milly = parseInt(floatThing.toString());
         console.log("fast_lap in milly::", fast_lap_milly);
+        console.log(
+            "timediff - fast lap",
+            timeDifferenceInMillis - fast_lap_milly
+        );
 
         if (
-            timeDifferenceInMillis - fast_lap >= 3000 ||
-            fast_lap_milly < 90000
+            timeDifferenceInMillis - fast_lap_milly >= 5000 ||
+            fast_lap_milly < 80000
         ) {
             // find a good value by testing
             console.log(
                 "fraud activation ! ! 1 ! ! ->>",
-                timeDifferenceInMillis - fast_lap
+                timeDifferenceInMillis - fast_lap_milly
             );
             // fraud();
         } else {
@@ -118,9 +122,10 @@ function fraud() {
 }
 
 async function postScore(btcAddress: string, fast_lap: number) {
+    const newFastLapMinutes = formatTime(fast_lap);
     const jsonObject = {
-        btcAddress,
-        fast_lap,
+        btcAddress: btcAddress,
+        fast_lap: newFastLapMinutes,
     };
 
     try {
@@ -157,7 +162,12 @@ async function handleScore(btcAddress: string, newFastLap: number) {
         if (response.ok) {
             const data = await response.json();
             if (data.length > 0) {
-                putScore(btcAddress, newFastLap);
+                const existingScore = data[0];
+                const existingFastLap = existingScore.fast_lap;
+                const parsedExisting = parseFormattedTime(existingFastLap);
+                if (newFastLap < parsedExisting) {
+                    putScore(btcAddress, newFastLap);
+                }
             } else {
                 postScore(btcAddress, newFastLap);
             }
@@ -171,6 +181,7 @@ async function handleScore(btcAddress: string, newFastLap: number) {
 
 async function putScore(btcAddress: string, newFastLap: number) {
     const requestUrl = `${supabaseUrl}/rest/v1/scores?btcAddress=eq.${btcAddress}`;
+    const fast_lap = formatTime(newFastLap);
     const putResponse = await fetch(requestUrl, {
         method: "PUT",
         headers: {
@@ -179,7 +190,7 @@ async function putScore(btcAddress: string, newFastLap: number) {
         },
         body: JSON.stringify({
             btcAddress: btcAddress,
-            fast_lap: newFastLap,
+            fast_lap: fast_lap,
         }),
     });
 
@@ -188,4 +199,32 @@ async function putScore(btcAddress: string, newFastLap: number) {
     } else {
         console.error("Failed to update fast lap:", putResponse);
     }
+}
+
+function parseFormattedTime(formattedTime: string): number {
+    // Split the formatted time into its components
+    const timeComponents = formattedTime.split(".");
+    if (timeComponents.length !== 3) {
+        console.error("Invalid formatted time format");
+        // Return a default value or handle the error as needed
+        return 0; // You can change this default value to another appropriate value
+    }
+
+    const minutes = parseInt(timeComponents[0]);
+    const seconds = parseInt(timeComponents[1]);
+    const tenths = parseInt(timeComponents[2]);
+    const totalTimeInSeconds = minutes * 60 + seconds + tenths / 10;
+
+    return totalTimeInSeconds;
+}
+
+function formatTime(dt: number) {
+    const minutes = Math.floor(dt / 60);
+    const seconds = Math.floor(dt - minutes * 60);
+    const tenths = Math.floor(10 * (dt - Math.floor(dt)));
+    if (minutes > 0)
+        return (
+            minutes + "." + (seconds < 10 ? "0" : "") + seconds + "." + tenths
+        );
+    else return seconds + "." + tenths;
 }
