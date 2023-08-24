@@ -727,6 +727,7 @@ function racer() {
     var gamepad = Dom.get('gamepad');
     var fast_lap_time = Dom.get('fast_lap_time');
     var leaderboard = Dom.get("leaderboard-container");
+    const leaderboardButton = Dom.get("leaderboard-button");
     var rightButtons = document.querySelector('.right-buttons');
     var leftButtons = document.querySelector('.left-buttons');
     var container = document.querySelector('.container'); 
@@ -734,22 +735,24 @@ function racer() {
     if (isMobile) {
       reset({ width: 640, height: 480 });
       createGamepad();
-    
+      
       if (window.innerHeight > window.innerWidth) 
         // Portrait mode adjustments
         setStylesForPortraitMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
       else 
         // Landscape mode adjustments
         setStylesForLandscapeMode(racer, mute, hud, gamepad, rightButtons, leftButtons, fast_lap_time);
-    
-      // Disable the container styles for mobile
-      container.classList.remove('container');
+        
+        // Disable the container styles and the leaderboard for mobile
+        container.classList.remove('container');
+        leaderboardButton.style.display = 'none';
     } else {
       // Desktop adjustments
       setStylesForDesktop(container, racer, mute, hud, fast_lap_time, leaderboard);
-      
-      // Enable the container styles for desktop
+
+      // Enable the container styles and leaderboard for desktop
       container.classList.add('container');
+      leaderboardButton.style.display = 'block';
     }
   }
   
@@ -931,7 +934,7 @@ function racer() {
   async function fetchLeaderboard() {
     try {
       const response = await fetch(
-        "https://pvrgwmyaxynklimiusly.supabase.co/functions/v1/leaderdboard",
+        "https://pvrgwmyaxynklimiusly.supabase.co/functions/v1/leaderboard",
         {
           method: "GET",
           headers: {
