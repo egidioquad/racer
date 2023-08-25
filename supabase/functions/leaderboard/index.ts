@@ -31,12 +31,12 @@ serve(async (req) => {
                 `Error fetching top scores: ${response.statusText}`
             );
         }
-        const data = await response.json();
+        const data: { btcAddress: string; fast_lap: string }[] =
+            await response.json();
         console.log("data: ", data);
-        data.sort(
-            (a: { fast_lap: number }, b: { fast_lap: number }) =>
-                a.fast_lap - b.fast_lap
-        );
+
+        data.sort((a, b) => a.fast_lap.localeCompare(b.fast_lap));
+
         const top10 = data.slice(0, 10); // Get the top 10 elements
 
         console.log("sorted data:", data);
