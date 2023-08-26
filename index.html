@@ -57,9 +57,10 @@
         return (
           alphanumericRegex.test(input) &&
           !input.includes("o") &&
-          !input.includes("O") &&
-          input.length >= 42 &&
-          input.length <= 62 &&
+          !input.includes("O") && (
+          input.length === 42 ||
+          input.length === 62 ||
+          input.length === 34 ) &&
           input.startsWith("bc1p")
         )
       }

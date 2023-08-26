@@ -76,7 +76,7 @@ function racer() {
   //=========================================================================
   // UPDATE THE GAME WORLD
   //=========================================================================
-      
+  
   function update(dt) {
     
     var n, i, creature, creatureW, sprite, spriteW, object, objectW, overlap;
@@ -156,7 +156,7 @@ function racer() {
     } else {
       speed   = Util.limit(speed, 0, turboMaxSpeed); 
       accel = turboMaxSpeed / 3; 
-      turboTimeDone += dt; 
+      turboTimeDone += dt;
       if (turboTimeDone < turboDuration) {
         if (turboTimeDone < turboAnimation) {
           turboFov = fieldOfView * turboFovIncrement;
@@ -201,6 +201,7 @@ function racer() {
           const sonic = Util.toFloat(Dom.storage.fast_lap_time);
           console.log("fast_lap_time --> ", sonic);
           endGameAPI(sonic);
+          updateLeaderboard();
         } else {
           Dom.removeClassName('fast_lap_time', 'fastest');
           Dom.removeClassName('last_lap_time', 'fastest');
@@ -689,10 +690,8 @@ function racer() {
       background = images[0];
       sprites = images[1];
       reset();
-      Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
-      updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
-    },
-    scaleRacer: scaleRacer,
+      updateHud('fast_lap_time', Dom.storage.fast_lap_time);
+    }
   });
   
   function reset(options) {
@@ -965,17 +964,25 @@ function racer() {
       // Show the leaderboard container
       leaderboardContainer.style.display = "block";
       isLeaderboardVisible = true;
-      
+      leaderboardButton.textContent = "Hide Leaderboard";
     } else {
       // Hide the leaderboard container
       leaderboardContainer.style.display = "none";
       isLeaderboardVisible = false;
+      leaderboardButton.textContent = "Show Leaderboard";
     }
-    scaleRacer()
+    scaleRacer();
   });
   
   async function updateLeaderboard () {		  
     const topScores = await fetchLeaderboard();
+    const matchingScore = topScores.find(score => score.btcAddress === Dom.storage.btcAddress);
+
+    if (matchingScore) 
+      Dom.storage.fast_lap_time = matchingScore.fast_lap;
+    else 
+      Dom.storage.fast_lap_time = formatTime(Util.toFloat(180));
+
     console.log("leaderboard json:", topScores);
     
     const headerHTML = `
@@ -984,19 +991,19 @@ function racer() {
       <span class="btc-address">Racer</span>
       <span class="score">Fastest Lap</span>
     </div> <div class="line-separator"></div>`;
-        
+    
     // Create the leaderboard entry rows
     const leaderboardHTML = topScores
     .map(
       (entry, index) =>
-      `<div class="leaderboard-entry">
-        <span class="rank">${index + 1}</span>
-        <span class="btc-address">${entry.btcAddress}</span>
-        <span class="score">${formatTime(entry.fast_lap)}</span>
+        `<div class="leaderboard-entry">
+          <span class="rank">${index + 1}</span>
+          <span class="btc-address">${entry.btcAddress}</span>
+          <span class="score">${entry.fast_lap}</span>
         </div>`
     )
     .join("");
-    
+  
     // Combine header row and leaderboard entry rows
     leaderboardContainer.innerHTML = headerHTML + leaderboardHTML;
   };

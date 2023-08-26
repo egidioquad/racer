@@ -55,7 +55,7 @@ body {
   width: 1024px;
   padding: 10px 0;
   font-family: Verdana, Geneva, sans-serif;
-  background-color: rgba(255, 0, 0, 0.641);
+  background-color: rgba(216, 23, 23, 0.857);
   color: black;
   border-bottom: 2px solid rgb(255, 255, 255);
   box-sizing: border-box;
@@ -146,9 +146,14 @@ body {
 /***************/
 
 #leaderboard-button {
+  background-color: rgba(216, 23, 23, 0.708);
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  width: 10em;
+  height: 1.5em;
   margin-top : 735px;
-  margin-left : 878px;
-  font-size: 1em;
+  margin-left : 786px;
+  font-size: 1.5em;
   position: absolute;
   white-space: nowrap;
 }
@@ -156,7 +161,7 @@ body {
 #leaderboard-container {
   position: absolute;
   width: 540px; /* Adjust the width as needed */
-  background-color: rgba(193, 29, 29, 0.53);
+  background-color: rgba(216, 23, 23, 0.708);
   padding: 10px;
   border: 2px solid #ffffff;
   border-radius: 10px;
@@ -165,6 +170,7 @@ body {
   margin-left: -580px;
   margin-top: -45px;
   color: #ffffff;
+  font-size: 1.3em;
 }
 
 /* Styles for each leaderboard entry */
