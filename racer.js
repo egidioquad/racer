@@ -905,7 +905,7 @@ function racer() {
         if (position > playerZ) {
             if (!firstLapStarted) {
                 startGameAPI();
-                console.log("first lap starts now");
+                //console.log("first lap starts now");
                 firstLapStarted = true;
             }
             if (currentLapTime && startPosition < playerZ) {
@@ -918,7 +918,7 @@ function racer() {
                     Dom.addClassName("fast_lap_time", "fastest");
                     Dom.addClassName("last_lap_time", "fastest");
                     const sonic = Util.toFloat(Dom.storage.fast_lap_time);
-                    console.log("fast_lap_time --> ", sonic);
+                    //console.log("fast_lap_time --> ", sonic);
                     endGameAPI(sonic);
                     updateLeaderboard();
                 } else {
@@ -1042,14 +1042,14 @@ function racer() {
 
         score += 1;
         currentLapTime -= 1.5;
-        console.log("Money");
+        //console.log("Money");
     }
 
     function triggerTurbo() {
         turboCurrentFov = fieldOfView;
         turboTimeDone = 0.0;
         turboTriggered = true;
-        console.log("GO CRAZYYYY");
+        //console.log("GO CRAZYYYY");
     }
 
     function updateFOV(fov) {
@@ -1922,7 +1922,7 @@ function racer() {
 
     function startGameAPI() {
         auth_token = localStorage.getItem("auth_token");
-        console.log("auth token:", auth_token);
+        //console.log("auth token:", auth_token);
         const data = {
             auth_token: auth_token,
         };
@@ -1940,16 +1940,16 @@ function racer() {
         )
             .then(async (response) => {
                 if (response.ok) {
-                    console.log("Data sent successfully!");
+                    //console.log("Data sent successfully!");
                     responseBody = await response.text();
                 } else {
-                    console.log("Error sending data:", response.statusText);
+                    //console.log("Error sending data:", response.statusText);
                 }
             })
             .then((responseData) => {
                 const response_token = responseBody;
                 localStorage.setItem("game_token", response_token);
-                console.log("Data sent! game_token:", response_token);
+                //console.log("Data sent! game_token:", response_token);
             })
             .catch((error) => {
                 console.error("Network error:", error);
@@ -1962,7 +1962,7 @@ function racer() {
             lap_time: lap_time,
             btcAddress: localStorage.getItem("btcAddress"),
         };
-        console.log("data:", data);
+        //console.log("data:", data);
         fetch("https://pvrgwmyaxynklimiusly.functions.supabase.co/end_game", {
             method: "POST",
             headers: {
@@ -1973,12 +1973,12 @@ function racer() {
             body: JSON.stringify(data),
         })
             .then((response) => {
-                console.log("sent verification request-->", response);
+                //console.log("sent verification request-->", response);
                 if (response.ok) {
-                    console.log("response status end:", response.statusText);
-                    console.log("Data sent successfully!");
+                    //console.log("response status end:", response.statusText);
+                    //console.log("Data sent successfully!");
                 } else {
-                    console.log("Error sending data:", response.statusText);
+                    //console.log("Error sending data:", response.statusText);
                 }
             })
             .catch((error) => {
@@ -2076,7 +2076,7 @@ function racer() {
             Dom.storage.fast_lap_time = formatTime(Util.toFloat(180));
         }
 
-        console.log("leaderboard json:", topScores);
+        //console.log("leaderboard json:", topScores);
 
         const headerHTML = `
     <div class="leaderboard-entry">
