@@ -641,7 +641,12 @@ function racer() {
 
     SPRITES.SCALE = 0.3 * (1 / SPRITES.PLAYER_STRAIGHT.w); // the reference sprite width should be 1/3rd the (half-)roadWidth
 
-    SPRITES.BILLBOARDS = [SPRITES.BILLBOARD007];
+    SPRITES.BILLBOARDS = [
+        SPRITES.BILLBOARD007,
+        SPRITES.BILLBOARD08,
+        SPRITES.BILLBOARD05,
+        SPRITES.BILLBOARD09,
+    ];
     SPRITES.PLANTS = [
         SPRITES.TREE1,
         SPRITES.TREE2,
@@ -1483,20 +1488,19 @@ function racer() {
         var n, i;
 
         addSprite(20, SPRITES.BILLBOARD007, -1);
-        addSprite(40, SPRITES.BILLBOARD007, -1);
-        addSprite(60, SPRITES.BILLBOARD007, -1);
-        addSprite(80, SPRITES.BILLBOARD007, -1);
+        addSprite(40, SPRITES.BILLBOARD06, -1);
+        addSprite(60, SPRITES.BILLBOARD09, -1);
+        addSprite(80, SPRITES.BILLBOARD08, -1);
         addSprite(100, SPRITES.BILLBOARD007, -1);
-        addSprite(120, SPRITES.BILLBOARD007, -1);
-        addSprite(140, SPRITES.BILLBOARD007, -1);
-        addSprite(160, SPRITES.BILLBOARD007, -1);
+        addSprite(120, SPRITES.BILLBOARD05, -1);
+        addSprite(140, SPRITES.BILLBOARD09, -1);
+        addSprite(160, SPRITES.BILLBOARD08, -1);
         addSprite(180, SPRITES.BILLBOARD007, -1);
 
-        addSprite(240, SPRITES.BILLBOARD007, -1.2);
-        addSprite(240, SPRITES.BILLBOARD007, 1.2);
+        addSprite(240, SPRITES.BILLBOARD08, -1.2);
+        addSprite(240, SPRITES.BILLBOARD05, 1.2);
         addSprite(segments.length - 25, SPRITES.BILLBOARD007, -1.2);
-        addSprite(segments.length - 25, SPRITES.BILLBOARD007, 1.2);
-
+        addSprite(segments.length - 25, SPRITES.BILLBOARD09, 1.2);
         for (n = 10; n < 200; n += 4 + Math.floor(n / 100)) {
             addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random() * 0.5);
             addSprite(n, SPRITES.PALM_TREE, 1 + Math.random() * 2);
@@ -2023,15 +2027,54 @@ function racer() {
         }
         scaleRacer();
     });
+    async function loadScore(btcAddress) {
+        const data = {
+            btcAddress: btcAddress,
+        };
+
+        const requestUrl = `https://pvrgwmyaxynklimiusly.supabase.co/rest/v1/scores?btcAddress=eq.${btcAddress}`;
+        try {
+            const response = await fetch(requestUrl, {
+                method: "GET",
+                headers: {
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.ok) {
+                const responseData = await response.json();
+                if (responseData.length > 0) {
+                    const existingScore = responseData[0];
+                    const existingFastLap = existingScore.fast_lap;
+                    return existingFastLap;
+                }
+            } else {
+                console.error("Error checking btcAddress:", response);
+                return null;
+            }
+        } catch (error) {
+            console.error("Error checking btcAddress:", error);
+            return null;
+        }
+    }
 
     async function updateLeaderboard() {
-        const topScores = await fetchLeaderboard();
-        const matchingScore = topScores.find(
-            (score) => score.btcAddress === Dom.storage.btcAddress
-        );
+        const btcAddress = localStorage.getItem("btcAddress");
 
-        if (matchingScore) Dom.storage.fast_lap_time = matchingScore.fast_lap;
-        else Dom.storage.fast_lap_time = formatTime(Util.toFloat(180));
+        const topScores = await fetchLeaderboard();
+        /*const matchingScore = topScores.find(
+            (score) => score.btcAddress === Dom.storage.btcAddress
+        );*/
+
+        //  if (matchingScore) Dom.storage.fast_lap_time = matchingScore.fast_lap;
+
+        const existingScore = await loadScore(btcAddress);
+        if (existingScore) {
+            Dom.storage.fast_lap_time = existingScore;
+            updateHud("fast_lap_time", existingScore);
+        } else {
+            Dom.storage.fast_lap_time = formatTime(Util.toFloat(180));
+        }
 
         console.log("leaderboard json:", topScores);
 

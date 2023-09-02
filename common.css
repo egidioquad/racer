@@ -2,47 +2,47 @@
 /* common styles  */
 /******************/
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #323232;
-  /* touch-action: pan-x; */
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #323232;
+    /* touch-action: pan-x; */
 }
 
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #racer {
-  position: absolute;
-  z-index: 0;
-  width: 1024px;
-  height: 768px;
-  border: 2px solid rgb(255, 255, 255);
+    position: absolute;
+    z-index: 0;
+    width: 1024px;
+    height: 768px;
+    border: 2px solid rgb(255, 255, 255);
 }
 
 #canvas {
-  position: absolute;
-  z-index: 0;
-  width: 1024px;
-  height: 768px;
-  z-index: 0;
-  background-color: #72d7ee;
+    position: absolute;
+    z-index: 0;
+    width: 1024px;
+    height: 768px;
+    z-index: 0;
+    background-color: #72d7ee;
 }
 
 #mute {
-  position: absolute;
-  background-position: 0px 0px;
-  width: 32px;
-  height: 32px;
-  background: url(images/mute.png);
-  display: inline-block;
-  cursor: pointer;
-  position: relative;
+    position: absolute;
+    background-position: 0px 0px;
+    width: 32px;
+    height: 32px;
+    background: url(images/mute.png);
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
 }
 
 #mute.on {
-  background-position: -32px 0px;
+    background-position: -32px 0px;
 }
 
 /*********************************/
@@ -50,56 +50,56 @@ body {
 /*********************************/
 
 #hud {
-  position: absolute;
-  z-index: 1;
-  width: 1024px;
-  padding: 10px 0;
-  font-family: Verdana, Geneva, sans-serif;
-  background-color: rgba(216, 23, 23, 0.857);
-  color: black;
-  border-bottom: 2px solid rgb(255, 255, 255);
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    width: 1024px;
+    padding: 10px 0;
+    font-family: Verdana, Geneva, sans-serif;
+    background-color: rgba(216, 23, 23, 0.857);
+    color: black;
+    border-bottom: 2px solid rgb(255, 255, 255);
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 #hud .hud {
-  background-color: rgba(255, 255, 255, 0.6);
-  padding: 10px;
-  border: 1px solid rgb(255, 255, 255);
-  margin: 0 5px;
-  transition-property: background-color;
-  transition-duration: 2s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 2s;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 10px;
+    border: 1px solid rgb(255, 255, 255);
+    margin: 0 5px;
+    transition-property: background-color;
+    transition-duration: 2s;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: 2s;
 }
 #hud #speed {
-  float: right;
+    float: right;
 }
 #hud #current_lap_time {
-  float: left;
+    float: left;
 }
 #hud #last_lap_time {
-  float: left;
-  display: none;
+    float: left;
+    display: none;
 }
 #hud #fast_lap_time {
-  display: block;
-  margin: 0 auto;
-  text-align: center;
-  transition-property: background-color;
-  transition-duration: 2s;
-  -webkit-transition-property: background-color;
-  -webkit-transition-duration: 2s;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    transition-property: background-color;
+    transition-duration: 2s;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: 2s;
 }
 #hud #coins {
-  float: right;
+    float: right;
 }
 #hud .value {
-  color: rgb(0, 0, 0);
-  font-weight: bold;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
 }
 #hud .fastest {
-  background-color: rgba(255, 215, 0, 0.5);
+    background-color: rgba(255, 215, 0, 0.5);
 }
 
 /******************/
@@ -107,38 +107,38 @@ body {
 /******************/
 
 #gamepad {
-  margin-left: 0;
-  height: 300px;
-  position: absolute;
-  font-size: 4em;
+    margin-left: 0;
+    height: 300px;
+    position: absolute;
+    font-size: 4em;
 }
 
 .gamepad-button {
-  background: rgba(255, 0, 0, 0.274);
-  width: 2em;
-  height: 2em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  float: left;
-  
-  /* Disable selection of text for gamepad buttons (so that user can press without selecting the text) */
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  /*
+    background: rgba(255, 0, 0, 0.274);
+    width: 2em;
+    height: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    float: left;
+
+    /* Disable selection of text for gamepad buttons (so that user can press without selecting the text) */
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    /*
    Introduced in IE 10.
    See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
   */
-  -ms-user-select: none;
-  user-select: none;
-  color: white;
-  border: 2px solid white; /* Add white border */
-  margin: 2px; /* Add margin for spacing between buttons */
+    -ms-user-select: none;
+    user-select: none;
+    color: white;
+    border: 2px solid white; /* Add white border */
+    margin: 2px; /* Add margin for spacing between buttons */
 }
 
 .gamepad-button span {
-  display: inline-block;
+    display: inline-block;
 }
 
 /***************/
@@ -146,69 +146,70 @@ body {
 /***************/
 
 #leaderboard-button {
-  background-color: rgba(216, 23, 23, 0.708);
-  border: 1px solid #ffffff;
-  color: #ffffff;
-  width: 10em;
-  height: 1.5em;
-  margin-top : 735px;
-  margin-left : 786px;
-  font-size: 1.5em;
-  position: absolute;
-  white-space: nowrap;
+    background-color: rgba(216, 23, 23, 0.708);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    width: 10em;
+    height: 1.5em;
+    margin-top: 735px;
+    margin-left: 786px;
+    font-size: 1.5em;
+    position: absolute;
+    white-space: nowrap;
 }
 
 #leaderboard-container {
-  position: absolute;
-  width: 540px; /* Adjust the width as needed */
-  background-color: rgba(216, 23, 23, 0.708);
-  padding: 10px;
-  border: 2px solid #ffffff;
-  border-radius: 10px;
-  box-shadow: 0px 9px 9px 1px #00000040,
-      inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
-  margin-left: -580px;
-  margin-top: -45px;
-  color: #ffffff;
-  font-size: 1.3em;
+    position: absolute;
+    margin-top: 750px;
+    width: 540px; /* Adjust the width as needed */
+    background-color: rgba(216, 23, 23, 0.708);
+    padding: 10px;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 9px 9px 1px #00000040,
+        inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
+    margin-left: -580px;
+    margin-top: -45px;
+    color: #ffffff;
+    font-size: 1.3em;
 }
 
 /* Styles for each leaderboard entry */
 .leaderboard-entry {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 /* Styles for individual elements within the entry */
 .rank {
-  flex-shrink: 0; /* Prevent rank from shrinking */
-  width: 30px; /* Adjust the width of the rank */
-  text-align: center; /* Center the rank text */
+    flex-shrink: 0; /* Prevent rank from shrinking */
+    width: 30px; /* Adjust the width of the rank */
+    text-align: center; /* Center the rank text */
 }
 
 .btc-address {
-  flex-shrink: 0; /* Prevent rank from shrinking */
-  width: 370px; /* Adjust the width of the rank */
-  text-align: center; /* Center the rank text */
-  white-space: nowrap; /* Prevent text from wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
-  padding: 0 5px;
+    flex-shrink: 0; /* Prevent rank from shrinking */
+    width: 370px; /* Adjust the width of the rank */
+    text-align: center; /* Center the rank text */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
+    padding: 0 5px;
 }
 .score {
-  flex: 1;
-  white-space: nowrap; /* Prevent text from wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
-  padding: 0 5px;
-  text-align: center; /* Center the rank text */
+    flex: 1;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
+    padding: 0 5px;
+    text-align: center; /* Center the rank text */
 }
 
 .line-separator {
-  width: 99%;
+    width: 99%;
 
-  height: 2px;
-  background-color: #ffffff;
-  margin: 10px auto;
+    height: 2px;
+    background-color: #ffffff;
+    margin: 10px auto;
 }

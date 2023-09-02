@@ -1,134 +1,149 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Racer</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <head>
+        <title>Racer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <style>
-      body {
-        background-color: #323232;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-      }
+        <style>
+            body {
+                background-color: #323232;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
 
-      .button {
-        background-color: #6d1ea1;
-        /* Green */
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 10px 2px;
-        cursor: pointer;
-        border-radius: 15px;
-      }
+            .button {
+                background-color: #6d1ea1;
+                /* Green */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 10px 2px;
+                cursor: pointer;
+                border-radius: 15px;
+            }
 
-      .button:disabled {
-        background-color: #888;
-        cursor: not-allowed;
-      }
+            .button:disabled {
+                background-color: #888;
+                cursor: not-allowed;
+            }
 
-      input {
-        margin-top: 10px;
-        padding: 10px;
-        font-size: 16px;
-      }
-    </style>
+            input {
+                margin-top: 10px;
+                padding: 10px;
+                font-size: 16px;
+            }
+        </style>
 
-    <script>
-      ///////////
-      //API CALLS
-      ///////////
+        <script>
+            ///////////
+            //API CALLS
+            ///////////
 
-      function checkInput() {
-        var inputAddress = document.getElementById("inputAddress").value;
-        document.getElementById("startButton").disabled = !inputAddress;
-      }
+            function checkInput() {
+                var inputAddress =
+                    document.getElementById("inputAddress").value;
+                document.getElementById("startButton").disabled = !inputAddress;
+            }
 
-      function isBitcoinAddress(input) {
-        const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-        return (
-          alphanumericRegex.test(input) &&
-          !input.includes("o") &&
-          !input.includes("O") && (
-          input.length === 42 ||
-          input.length === 62 ||
-          input.length === 34 ) &&
-          input.startsWith("bc1p")
-        )
-      }
+            function isBitcoinAddress(input) {
+                const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+                return (
+                    alphanumericRegex.test(input) &&
+                    !input.includes("o") &&
+                    !input.includes("O") &&
+                    (input.length === 42 ||
+                        input.length === 62 ||
+                        input.length === 34) &&
+                    input.startsWith("bc1")
+                );
+            }
 
-      async function sendData(inputAddress) {
-        localStorage.setItem("btcAddress", inputAddress);
-        // Check if the inputAddress is in the format of a Bitcoin address
-        const data = {
-          inputAddress: inputAddress,
-        };
-        const response = fetch(
-          "https://pvrgwmyaxynklimiusly.functions.supabase.co/route",
-          {
-            method: "POST",
-            headers: {
-              Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          }
-        ).then(async (response) => {
-          console.log(response.status);
-          if (response.status === 200) {
-            responseBody = await response.text();
-          } else {
-            console.error("Error from server:", response.status);
-          }
-        }).then((response) => {
-          localStorage.removeItem("auth_token");
-          const auth_token = responseBody;
-          localStorage.setItem("auth_token", auth_token); //auth token in local storage
-          console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
-          console.log("auth_token logged: \n", auth_token);
-        })
-        .catch((error) => {
-          console.log("not sending request");
-          console.error("Network error:", error);
-        });
-      }
+            async function sendData(inputAddress) {
+                localStorage.setItem("btcAddress", inputAddress);
+                // Check if the inputAddress is in the format of a Bitcoin address
+                const data = {
+                    inputAddress: inputAddress,
+                };
+                const response = fetch(
+                    "https://pvrgwmyaxynklimiusly.functions.supabase.co/route",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization:
+                                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    }
+                )
+                    .then(async (response) => {
+                        console.log(response.status);
+                        if (response.status === 200) {
+                            responseBody = await response.text();
+                        } else {
+                            console.error(
+                                "Error from server:",
+                                response.status
+                            );
+                        }
+                    })
+                    .then((response) => {
+                        localStorage.removeItem("auth_token");
+                        const auth_token = responseBody;
+                        localStorage.setItem("auth_token", auth_token); //auth token in local storage
+                        console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
+                        console.log("auth_token logged: \n", auth_token);
+                    })
+                    .catch((error) => {
+                        console.log("not sending request");
+                        console.error("Network error:", error);
+                    });
+            }
 
-      async function handleButtonClick() {
-        const inputAddress = document.getElementById("inputAddress").value;
-        if (isBitcoinAddress(inputAddress)) {
-          await sendData(inputAddress).then(() => {
-            setTimeout(() => {location.href = "racer.html";}, 3000); // Adjust the delay as needed
-          }).catch((error) => {
-            console.error("Error:", error);
-          });
-        } else {
-          console.log("Invalid Ordinals address!");
-        }
-      }
-    </script>
-  </head>
+            async function handleButtonClick() {
+                const inputAddress =
+                    document.getElementById("inputAddress").value;
+                if (isBitcoinAddress(inputAddress)) {
+                    await sendData(inputAddress)
+                        .then(() => {
+                            setTimeout(() => {
+                                location.href = "racer.html";
+                            }, 3000); // Adjust the delay as needed
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+                } else {
+                    console.log("Invalid Ordinals address!");
+                }
+            }
+        </script>
+    </head>
 
-  <body onload="checkInput()">
-    <img class="image" src="images/dragonRacer.png" alt="Image description" />
+    <body onload="checkInput()">
+        <img
+            class="image"
+            src="images/dragonRacer.png"
+            alt="Image description"
+        />
 
-    <input
-      type="text"
-      id="inputAddress"
-      placeholder="Enter btcAddress"
-      oninput="checkInput()"
-    />
+        <input
+            type="text"
+            id="inputAddress"
+            placeholder="Enter btcAddress"
+            oninput="checkInput()"
+        />
 
-    <button class="button" id="startButton" onclick="handleButtonClick()">
-      Start
-    </button>
-  </body>
+        <button class="button" id="startButton" onclick="handleButtonClick()">
+            Start
+        </button>
+    </body>
 </html>
