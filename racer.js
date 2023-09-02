@@ -1,4 +1,4 @@
-function racer() {
+async function racer() {
     // common.js  v
     //=========================================================================
     // minimalist DOM helpers
@@ -747,7 +747,7 @@ function racer() {
     // UPDATE THE GAME WORLD
     //=========================================================================
 
-    function update(dt) {
+    async function update(dt) {
         var n,
             i,
             creature,
@@ -905,13 +905,13 @@ function racer() {
         if (position > playerZ) {
             if (!firstLapStarted) {
                 startGameAPI();
-                //console.log("first lap starts now");
                 firstLapStarted = true;
             }
             if (currentLapTime && startPosition < playerZ) {
                 lastLapTime = currentLapTime;
                 currentLapTime = 0;
                 resetObjects();
+
                 if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
                     Dom.storage.fast_lap_time = lastLapTime;
                     updateHud("fast_lap_time", formatTime(lastLapTime));
@@ -919,7 +919,7 @@ function racer() {
                     Dom.addClassName("last_lap_time", "fastest");
                     const sonic = Util.toFloat(Dom.storage.fast_lap_time);
                     //console.log("fast_lap_time --> ", sonic);
-                    endGameAPI(sonic);
+                    await endGameAPI(sonic);
                     updateLeaderboard();
                 } else {
                     Dom.removeClassName("fast_lap_time", "fastest");
@@ -1691,13 +1691,36 @@ function racer() {
                 },
             },
         ],
-        ready: function (images) {
+        ready: async function (images) {
             background = images[0];
             sprites = images[1];
             reset();
-            updateHud("fast_lap_time", Dom.storage.fast_lap_time);
+            const existingScore = await loadScore();
+            if (existingScore) {
+                Dom.storage.fast_lap_time = parseFormattedTime(existingScore);
+            } else {
+                Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
+            }
+            updateHud(
+                "fast_lap_time",
+                formatTime(Util.toFloat(Dom.storage.fast_lap_time))
+            );
         },
     });
+
+    function parseFormattedTime(formattedTime) {
+        const timeComponents = formattedTime.split(".");
+        if (timeComponents.length !== 3) {
+            console.error("Invalid formatted time format");
+            return 0;
+        }
+        const minutes = parseInt(timeComponents[0]);
+        const seconds = parseInt(timeComponents[1]);
+        const tenths = parseInt(timeComponents[2]);
+        const totalTimeInSeconds = minutes * 60 + seconds + tenths / 10;
+
+        return totalTimeInSeconds;
+    }
 
     function reset(options) {
         options = options || {};
@@ -2027,54 +2050,49 @@ function racer() {
         }
         scaleRacer();
     });
-    async function loadScore(btcAddress) {
-        const data = {
-            btcAddress: btcAddress,
-        };
+    async function loadScore() {
+        const btcAddress = localStorage.getItem("btcAddress");
+        if (btcAddress) {
+            const data = {
+                btcAddress: btcAddress,
+            };
 
-        const requestUrl = `https://pvrgwmyaxynklimiusly.supabase.co/rest/v1/scores?btcAddress=eq.${btcAddress}`;
-        try {
-            const response = await fetch(requestUrl, {
-                method: "GET",
-                headers: {
-                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
-                    "Content-Type": "application/json",
-                },
-            });
-            if (response.ok) {
-                const responseData = await response.json();
-                if (responseData.length > 0) {
-                    const existingScore = responseData[0];
-                    const existingFastLap = existingScore.fast_lap;
-                    return existingFastLap;
+            const requestUrl = `https://pvrgwmyaxynklimiusly.supabase.co/rest/v1/scores?btcAddress=eq.${btcAddress}`;
+            try {
+                const response = await fetch(requestUrl, {
+                    method: "GET",
+                    headers: {
+                        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmd3bXlheHlua2xpbWl1c2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTAzODk5OTIsImV4cCI6MjAwNTk2NTk5Mn0.sjrh-nJAzRyp1Aunxk94cDVVzpmwX2OozZ8iD1xM8oc",
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response.ok) {
+                    const responseData = await response.json();
+                    if (responseData.length > 0) {
+                        const existingScore = responseData[0];
+                        const existingFastLap = existingScore.fast_lap;
+                        return existingFastLap;
+                    }
+                } else {
+                    console.error("Error checking btcAddress:", response);
+                    return null;
                 }
-            } else {
-                console.error("Error checking btcAddress:", response);
+            } catch (error) {
+                console.error("Error checking btcAddress:", error);
                 return null;
             }
-        } catch (error) {
-            console.error("Error checking btcAddress:", error);
+        } else {
             return null;
         }
     }
 
     async function updateLeaderboard() {
-        const btcAddress = localStorage.getItem("btcAddress");
-
         const topScores = await fetchLeaderboard();
         /*const matchingScore = topScores.find(
             (score) => score.btcAddress === Dom.storage.btcAddress
         );*/
 
         //  if (matchingScore) Dom.storage.fast_lap_time = matchingScore.fast_lap;
-
-        const existingScore = await loadScore(btcAddress);
-        if (existingScore) {
-            Dom.storage.fast_lap_time = existingScore;
-            updateHud("fast_lap_time", existingScore);
-        } else {
-            Dom.storage.fast_lap_time = formatTime(Util.toFloat(180));
-        }
 
         //console.log("leaderboard json:", topScores);
 
