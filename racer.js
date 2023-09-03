@@ -642,10 +642,12 @@ async function racer() {
     SPRITES.SCALE = 0.3 * (1 / SPRITES.PLAYER_STRAIGHT.w); // the reference sprite width should be 1/3rd the (half-)roadWidth
 
     SPRITES.BILLBOARDS = [
+        SPRITES.BILLBOARD01,
         SPRITES.BILLBOARD007,
         SPRITES.BILLBOARD08,
         SPRITES.BILLBOARD05,
         SPRITES.BILLBOARD09,
+        SPRITES.BILLBOARD06,
     ];
     SPRITES.PLANTS = [
         SPRITES.TREE1,
@@ -1487,20 +1489,26 @@ async function racer() {
     function resetSprites() {
         var n, i;
 
-        addSprite(20, SPRITES.BILLBOARD007, -1);
-        addSprite(40, SPRITES.BILLBOARD06, -1);
-        addSprite(60, SPRITES.BILLBOARD09, -1);
-        addSprite(80, SPRITES.BILLBOARD08, -1);
-        addSprite(100, SPRITES.BILLBOARD007, -1);
-        addSprite(120, SPRITES.BILLBOARD05, -1);
-        addSprite(140, SPRITES.BILLBOARD09, -1);
-        addSprite(160, SPRITES.BILLBOARD08, -1);
-        addSprite(180, SPRITES.BILLBOARD007, -1);
+        addSprite(20, SPRITES.BILLBOARD01, -1);
+        addSprite(40, SPRITES.BILLBOARD06, -1); //magisat
+        addSprite(60, SPRITES.BILLBOARD09, -1); //aa rare
+        addSprite(80, SPRITES.BILLBOARD08, -1); //carota
+        addSprite(100, SPRITES.BILLBOARD007, -1); //ord play
 
-        addSprite(240, SPRITES.BILLBOARD08, -1.2);
+        addSprite(120, SPRITES.BILLBOARD05, -1);
+        addSprite(140, SPRITES.BILLBOARD01, -1.2);
+        addSprite(160, SPRITES.BILLBOARD06, -1);
+        addSprite(180, SPRITES.BILLBOARD01, -1.2);
+        addSprite(200, SPRITES.BILLBOARD05, -1);
+        addSprite(220, SPRITES.BILLBOARD06, -1);
+        addSprite(240, SPRITES.BILLBOARD01, 1.2); //inscrib3
+
+        addSprite(240, SPRITES.BILLBOARD01, -1.2);
         addSprite(240, SPRITES.BILLBOARD05, 1.2);
+
         addSprite(segments.length - 25, SPRITES.BILLBOARD007, -1.2);
         addSprite(segments.length - 25, SPRITES.BILLBOARD09, 1.2);
+
         for (n = 10; n < 200; n += 4 + Math.floor(n / 100)) {
             addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random() * 0.5);
             addSprite(n, SPRITES.PALM_TREE, 1 + Math.random() * 2);
