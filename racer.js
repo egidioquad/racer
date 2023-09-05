@@ -919,14 +919,15 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 					updateHud("fast_lap_time", formatTime(lastLapTime));
 					Dom.addClassName("fast_lap_time", "fastest");
 					Dom.addClassName("last_lap_time", "fastest");
-					const sonic = Util.toFloat(Dom.storage.fast_lap_time);
-					//console.log("fast_lap_time --> ", sonic);
-					await endGameAPI(sonic);
+					
 					updateLeaderboard();
 				} else {
 					Dom.removeClassName("fast_lap_time", "fastest");
 					Dom.removeClassName("last_lap_time", "fastest");
 				}
+				const sonic = Util.toFloat(Dom.storage.fast_lap_time);
+					//console.log("fast_lap_time --> ", sonic);
+					await endGameAPI(sonic);
 				updateHud("last_lap_time", formatTime(lastLapTime));
 				Dom.show("last_lap_time");
 				startGameAPI();
