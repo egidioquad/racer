@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Racer</title>
+        <title>Dragon-Racer Access</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
         <style>
@@ -85,7 +85,7 @@
                     }
                 )
                     .then(async (response) => {
-                        console.log(response.status);
+                        // console.log(response.status);
                         if (response.status === 200) {
                             responseBody = await response.text();
                         } else {
@@ -99,11 +99,11 @@
                         localStorage.removeItem("auth_token");
                         const auth_token = responseBody;
                         localStorage.setItem("auth_token", auth_token); //auth token in local storage
-                        console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
-                        console.log("auth_token logged: \n", auth_token);
+                        // console.log("Data sent successfully!"); // not logging good, do shit like print on screen scored saved!
+                        // console.log("auth_token logged: \n", auth_token);
                     })
                     .catch((error) => {
-                        console.log("not sending request");
+                        // console.log("not sending request");
                         console.error("Network error:", error);
                     });
             }
@@ -122,7 +122,7 @@
                             console.error("Error:", error);
                         });
                 } else {
-                    console.log("Invalid Ordinals address!");
+                    // console.log("Invalid Ordinals address!");
                     location.href = "racer.html";
                 }
             }

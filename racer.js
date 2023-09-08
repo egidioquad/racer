@@ -1,5 +1,5 @@
 async function racer() {
-	// common.js  v
+	
 	//=========================================================================
 	// minimalist DOM helpers
 	//=========================================================================
@@ -263,22 +263,7 @@ async function racer() {
 					}
 				}
 			}
-		},
-
-		//---------------------------------------------------------------------------
-
-		playMusic: function () {
-			var music = Dom.get("music");
-			music.volume = 0.05; // shhhh! annoying music!
-			music.muted = !music.muted;
-			if (!music.muted) {
-				music.play();
-				Dom.toggleClassName("mute", "on", music.muted);
-			} else {
-				music.pause();
-				Dom.toggleClassName("mute", "on", music.muted);
-			}
-		},
+		}
 	};
 
 	//=========================================================================
@@ -919,15 +904,14 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 					updateHud("fast_lap_time", formatTime(lastLapTime));
 					Dom.addClassName("fast_lap_time", "fastest");
 					Dom.addClassName("last_lap_time", "fastest");
-					
+					const sonic = Util.toFloat(Dom.storage.fast_lap_time);
+					//console.log("fast_lap_time --> ", sonic);
+					await endGameAPI(sonic);
 					updateLeaderboard();
 				} else {
 					Dom.removeClassName("fast_lap_time", "fastest");
 					Dom.removeClassName("last_lap_time", "fastest");
 				}
-				const sonic = Util.toFloat(Dom.storage.fast_lap_time);
-					//console.log("fast_lap_time --> ", sonic);
-					await endGameAPI(sonic);
 				updateHud("last_lap_time", formatTime(lastLapTime));
 				Dom.show("last_lap_time");
 				startGameAPI();
@@ -1756,132 +1740,130 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 	}
 
 	//=========================================================================
-	// MOBILE RESCALING FUNCTIONS
+	// MOBILE AND DESKTOP RESCALING FUNCTIONS
 	//=========================================================================
-
 	function scaleRacer() {
-		var isMobile = "ontouchstart" in window || navigator.maxTouchPoints;
 		var racer = Dom.get("racer");
 		var mute = Dom.get("mute");
-		var hud = Dom.get("hud");
 		var gamepad = Dom.get("gamepad");
-		var fast_lap_time = Dom.get("fast_lap_time");
 		var leaderboard = Dom.get("leaderboard-container");
-		const leaderboardButton = Dom.get("leaderboard-button");
+		var leaderboardButton = Dom.get("leaderboard-button");
 		var rightButtons = document.querySelector(".right-buttons");
 		var leftButtons = document.querySelector(".left-buttons");
 		var container = document.querySelector(".container");
-
-		if (isMobile) {
+		var btc_addresses = document.querySelectorAll(".btc-address");
+		
+		if ("ontouchstart" in window || navigator.maxTouchPoints) {
 			reset({ width: 640, height: 480 });
-			createGamepad();
 
-			if (window.innerHeight > window.innerWidth)
+			gamepad.style.display = "block";
+			leaderboardButton.style.display = "none";
+			leaderboard.style.display = "block";
+			
+			if (window.innerHeight > window.innerWidth) {
 				// Portrait mode adjustments
 				setStylesForPortraitMode(
-					racer,
-					mute,
-					hud,
 					gamepad,
 					rightButtons,
 					leftButtons,
-					fast_lap_time
+					leaderboard,
+					btc_addresses,
+					container
 				);
-			// Landscape mode adjustments
-			else
+				
+				marginTopProportion = 55;
+				minWidth = 1150;
+			} else {
+				// Landscape mode adjustments
 				setStylesForLandscapeMode(
-					racer,
-					mute,
-					hud,
 					gamepad,
 					rightButtons,
 					leftButtons,
-					fast_lap_time
+					leaderboard,
+					btc_addresses,
+					container
 				);
 
-			// Disable the container styles and the leaderboard for mobile
-			container.classList.remove("container");
-			leaderboardButton.style.display = "none";
+				marginTopProportion = 3;
+				minWidth = 2000;
+			}
 		} else {
-			// Desktop adjustments
-			setStylesForDesktop(
-				container,
-				racer,
-				mute,
-				hud,
-				fast_lap_time,
-				leaderboard
-			);
-
-			// Enable the container styles and leaderboard for desktop
-			container.classList.add("container");
+			leaderboard.style.marginLeft = "-580px";
+			leaderboard.style.marginTop = "-45px";
+			gamepad.style.display = "none";
 			leaderboardButton.style.display = "block";
-		}
-	}
 
+			marginTopProportion = 3
+			minWidth = 1250;
+		}
+
+		centerRacer(
+			container,
+			racer,
+			mute,
+			marginTopProportion,
+			minWidth
+		);
+	}
+		
 	function setStylesForPortraitMode(
-		racer,
-		mute,
-		hud,
 		gamepad,
 		rightButtons,
 		leftButtons,
-		fast_lap_time
+		leaderboard,
+		btc_addresses,
+		container
 	) {
-		fast_lap_time.style.width = "10em";
-		hud.style.fontSize = "1.5em";
-		racer.style.transform = "scale(1)";
-		racer.style.marginTop = "0%";
-		racer.style.marginLeft = "0%";
-		mute.style.marginLeft = "2%";
-		mute.style.marginTop = "78%";
-		mute.style.transform = "scale(2.5)";
-		gamepad.style.transform = "scale(2)";
-		gamepad.style.width = "40%";
-		rightButtons.style.marginLeft = "115%";
-		rightButtons.style.marginTop = "130%";
-		leftButtons.style.marginLeft = "30%";
-		leftButtons.style.marginTop = "190%";
-		leftButtons.style.position = rightButtons.style.position = "absolute";
+		gamepad.style.transform = "scale(1)"
+		rightButtons.style.marginLeft = "720px";
+		rightButtons.style.marginTop = "600px";
+		leftButtons.style.marginLeft = "-10px";
+		leftButtons.style.marginTop = "950px";
+		leaderboard.style.marginLeft = "20px";
+		leaderboard.style.marginTop = "1500px";
+		leaderboard.style.fontSize = "1.6em"; 
+		leaderboard.style.width = "950px";
+		btc_addresses.forEach((address) => {
+			address.style.width = "700px";
+		})
+		leaderboard.style.transform = "scale(1)";
+		container.style.marginLeft = "0px";
 	}
 
 	function setStylesForLandscapeMode(
-		racer,
-		mute,
-		hud,
 		gamepad,
 		rightButtons,
 		leftButtons,
-		fast_lap_time
+		leaderboard,
+		btc_addresses,
+		container
 	) {
-		fast_lap_time.style.width = "10em";
-		hud.style.fontSize = "1.5em";
-		racer.style.transform = "scale(0.6)";
-		racer.style.marginTop = "-15%";
-		racer.style.marginLeft = "9%";
-		mute.style.marginLeft = "102%";
-		mute.style.marginTop = "1%";
-		mute.style.transform = "scale(2.5)";
-		gamepad.style.transform = "scale(1)";
-		gamepad.style.width = "100%";
-		rightButtons.style.marginLeft = "94%";
-		rightButtons.style.marginTop = "13%";
-		leftButtons.style.marginLeft = "1.5%";
-		leftButtons.style.marginTop = "26%";
-		leftButtons.style.position = rightButtons.style.position = "absolute";
+		gamepad.style.transform = "scale(0.85)"
+		rightButtons.style.marginLeft = "1130px";
+		rightButtons.style.marginTop = "0px";
+		leftButtons.style.marginLeft = "-740px";
+		leftButtons.style.marginTop = "250px";
+		leaderboard.style.marginLeft = "-575px";
+		leaderboard.style.marginTop = "-45px";
+		leaderboard.style.fontSize = "1.3em"; 
+		leaderboard.style.width = "540px";
+		leaderboard.style.transform = "scale(0.9)";
+		btc_addresses.forEach((address) => {
+			address.style.width = "370px";
+		});
+		container.style.marginLeft = "105px";
 	}
 
-	function setStylesForDesktop(
+	function centerRacer(
 		container,
 		racer,
 		mute,
-		hud,
-		fast_lap_time,
-		leaderboard
+		marginTopProportion,
+		minWidth
 	) {
 		// Define constants for target dimensions
 		const containerHeight = 900;
-		const containerWidth = isLeaderboardVisible ? 1700 : 1200;
+		const containerWidth = isLeaderboardVisible ? 1700 : minWidth;
 
 		// Calculate scale factors for height and width
 		const heightScale = Math.min(window.innerHeight / containerHeight, 1);
@@ -1894,10 +1876,6 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 		)})`;
 
 		// Set styles for other elements
-		fast_lap_time.style.width = "11em";
-		hud.style.fontSize = "1.3em";
-		racer.style.transform = "scale(1)";
-		racer.style.marginTop = "";
 		racer.style.marginLeft =
 			isLeaderboardVisible === false ? "0px" : "540px";
 		mute.style.marginLeft = "1040px";
@@ -1907,30 +1885,10 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 		// Calculate and apply container margin-top
 		const racerHeight = racer.getBoundingClientRect().height;
 		const containerMarginTop =
-			racerHeight / 2 + (window.innerHeight - racerHeight) / 3;
+			racerHeight / 2 + (window.innerHeight - racerHeight) / marginTopProportion
 		container.style.marginTop = `${containerMarginTop}px`;
 	}
-
-	function createGamepad() {
-		var existingGamepad = Dom.get("gamepad");
-
-		if (!existingGamepad) {
-			var gamepadHTML = `
-        <div id='gamepad'>
-          <div class='left-buttons'>
-            <div id='gamepad-left' class='gamepad-button'><span><</span></div>
-            <div id='gamepad-right' class='gamepad-button'><span>></span></div>
-          </div>
-          <div class='right-buttons'>
-            <div id='gamepad-up' class='gamepad-button'><span>ʌ</span></div>
-            <div id='gamepad-down' class='gamepad-button'><span>v</span></div>
-          </div>
-        </div>
-      `;
-
-			document.body.insertAdjacentHTML("beforeend", gamepadHTML);
-		}
-	}
+	  
 
 	// Disable zoom on double-touch gestures
 	document.addEventListener(
@@ -2046,7 +2004,7 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 	const leaderboardContainer = Dom.get("leaderboard-container");
 	const leaderboardButton = document.getElementById("leaderboard-button");
 
-	leaderboardButton.addEventListener("click", () => {
+	leaderboardButton.addEventListener("click", async () => {
 		if (isLeaderboardVisible === false) {
 			// Show the leaderboard container
 			leaderboardContainer.style.display = "block";
@@ -2060,6 +2018,7 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 		}
 		scaleRacer();
 	});
+	
 	async function loadScore() {
 		const btcAddress = localStorage.getItem("btcAddress");
 		if (btcAddress) {
@@ -2094,41 +2053,45 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 
 	async function updateLeaderboard() {
 		const topScores = await fetchLeaderboard();
-		/*const matchingScore = topScores.find(
-				(score) => score.btcAddress === Dom.storage.btcAddress
-		);*/
+		const leaderboardContainer = Dom.get("leaderboard-container");
+		console.log(topScores);
 
-		//  if (matchingScore) Dom.storage.fast_lap_time = matchingScore.fast_lap;
-
-		//console.log("leaderboard json:", topScores);
-
-		const headerHTML = `
-    <div class="leaderboard-entry">
-      <span class="rank">#</span>
-      <span class="btc-address">Racer</span>
-      <span class="score">Fastest Lap</span>
-    </div> <div class="line-separator"></div>`;
+		// Remove all existing leaderboard entries
+		const existingEntries = leaderboardContainer.querySelectorAll(".leaderboard-entry");
+		existingEntries.forEach((entry, i) => {
+			if (i != 0) 
+				entry.remove()
+		});
 
 		// Create the leaderboard entry rows
 		const leaderboardHTML = topScores
 			.map(
-				(entry, index) =>
-					`<div class="leaderboard-entry">
-          <span class="rank">${index + 1}</span>
-          <span class="btc-address">${entry.btcAddress}</span>
-          <span class="score">${entry.fast_lap}</span>
-        </div>`
+				(entry, index) => `
+					<div class="leaderboard-entry">
+          				<span class="rank">${index + 1}</span>
+          				<span class="btc-address">${entry.btcAddress}</span>
+          				<span class="score">${entry.fast_lap}</span>
+					</div>
+				`
 			)
 			.join("");
-
+		
 		// Combine header row and leaderboard entry rows
-		leaderboardContainer.innerHTML = headerHTML + leaderboardHTML;
+		leaderboardContainer.insertAdjacentHTML("beforeend", leaderboardHTML);
+
+		leaderboardContainer.querySelectorAll(".leaderboard-entry")[1].style.color = "gold";
+		leaderboardContainer.querySelectorAll(".leaderboard-entry")[2].style.color = "silver";
+		leaderboardContainer.querySelectorAll(".leaderboard-entry")[3].style.color = "#cc6633";
+		corrispondentAddress = topScores.findIndex(score => score.btcAddress === localStorage.getItem("btcAddress"));
+		if (corrispondentAddress !== -1)
+			leaderboardContainer.querySelectorAll(".btc-address")[corrispondentAddress + 1].style.textDecoration = "underline";
+		scaleRacer();
 	}
 
 	updateLeaderboard();
 
-	// Update the leaderboard every minute
-	setInterval(updateLeaderboard, 60000);
+	// Update the leaderboard every three minute
+	setInterval(updateLeaderboard, 180000);
 }
 
 // https://www.toolnb.com/tools-lang-en/gzip.html to encode changes

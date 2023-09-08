@@ -4,7 +4,7 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: #323232;
-    /* touch-action: pan-x; */
+    touch-action: pan-x;
 }
 
 .container {
@@ -61,6 +61,7 @@ body {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+    font-size: 1.3em;
 }
 #hud .hud {
     background-color: rgba(255, 255, 255, 0.6);
@@ -83,6 +84,7 @@ body {
     display: none;
 }
 #hud #fast_lap_time {
+    width: 11em;
     display: block;
     margin: 0 auto;
     text-align: center;
@@ -107,14 +109,14 @@ body {
 /******************/
 
 #gamepad {
-    margin-left: 0;
+    width: 1000px;
     height: 300px;
     position: absolute;
-    font-size: 4em;
+    font-size: 9em;
 }
 
 .gamepad-button {
-    background: rgba(255, 0, 0, 0.274);
+    background-color: rgba(150, 20, 20, 0.708);
     width: 2em;
     height: 2em;
     display: flex;
@@ -141,6 +143,14 @@ body {
     display: inline-block;
 }
 
+.right-buttons {
+    position: absolute;
+}
+
+.left-buttons {
+    position: absolute;
+}
+
 /***************/
 /* Leaderboard */
 /***************/
@@ -160,16 +170,13 @@ body {
 
 #leaderboard-container {
     position: absolute;
-    margin-top: 750px;
     width: 540px; /* Adjust the width as needed */
-    background-color: rgba(216, 23, 23, 0.708);
+    background-color: rgba(216, 23, 23, 0.515);
     padding: 10px;
     border: 2px solid #ffffff;
     border-radius: 10px;
     box-shadow: 0px 9px 9px 1px #00000040,
         inset 0px -5px 19px 1px rgba(176, 176, 176, 0.4);
-    margin-left: -580px;
-    margin-top: -45px;
     color: #ffffff;
     font-size: 1.3em;
 }
@@ -184,7 +191,7 @@ body {
 /* Styles for individual elements within the entry */
 .rank {
     flex-shrink: 0; /* Prevent rank from shrinking */
-    width: 30px; /* Adjust the width of the rank */
+    width: 35px; /* Adjust the width of the rank */
     text-align: center; /* Center the rank text */
 }
 
@@ -201,7 +208,6 @@ body {
     flex: 1;
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden;
-    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
     padding: 0 5px;
     text-align: center; /* Center the rank text */
 }
