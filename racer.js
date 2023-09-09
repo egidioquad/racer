@@ -2076,6 +2076,8 @@ FINISH: { road: 'black', grass: 'black', rumble: 'black' }
 			)
 			.join("");
 		
+		
+
 		// Combine header row and leaderboard entry rows
 		leaderboardContainer.insertAdjacentHTML("beforeend", leaderboardHTML);
 
